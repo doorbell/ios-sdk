@@ -2,9 +2,14 @@
 
 The Doorbell iOS SDK.
 
+## Full documentation
+
+You can view the full documentation here: https://doorbell.io/docs/ios
+
 ## Usage
 
-At the top of your class, import the Doorbell header file:
+In the ViewController where you want to use Doorbell, you'll need to import the library using:
+
 ```objc
 #import "Doorbell.h"
 ```
