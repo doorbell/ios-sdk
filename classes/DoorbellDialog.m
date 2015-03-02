@@ -15,6 +15,8 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 @property (strong, nonatomic) UILabel *sendingLabel;
 @property (strong, nonatomic) UIViewController *parentViewController;
 
+@property UIDeviceOrientation lastDeviceOrientation;
+
 @end
 
 @implementation DoorbellDialog
@@ -68,6 +70,12 @@ NSString * const DoorbellSite = @"http://doorbell.io";
     return self;
 }
 
+- (void)dealloc
+{
+    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+}
+
 - (void) recalculateFrame
 {
     CGRect frame = self.parentViewController.view.bounds;
@@ -83,10 +91,16 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 - (void) orientationChanged:(NSNotification *)note
 {
     // Hide the keyboard, so when the dialog is centered is looks OK
-    [[UIApplication sharedApplication] sendAction:@selector(resignFirstResponder) to:nil from:nil forEvent:nil];
-
-    [self recalculateFrame];
-
+    UIDevice *device = [note object];
+    if ([device orientation] != UIDeviceOrientationFaceUp &&
+        [device orientation] != UIDeviceOrientationFaceDown &&
+        [device orientation] != UIDeviceOrientationUnknown &&
+        [device orientation] != self.lastDeviceOrientation )
+    {
+        [[UIApplication sharedApplication] sendAction:@selector(resignFirstResponder) to:nil from:nil forEvent:nil];
+        self.lastDeviceOrientation = [device orientation];
+        [self recalculateFrame];
+    }
 }
 
 - (NSString*)bodyText
@@ -129,6 +143,8 @@ NSString * const DoorbellSite = @"http://doorbell.io";
     if ([_delegate respondsToSelector:@selector(dialogDidCancel:)]) {
         [_delegate dialogDidCancel:self];
     }
+    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (void)highlightMessageEmpty
