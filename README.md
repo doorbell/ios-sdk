@@ -15,7 +15,7 @@ Include Doorbell via CocoaPods: http://cocoapods.org/?q=on%3Aios%20doorbell
 In the ViewController where you want to use Doorbell, you'll need to import the library using:
 
 ```objc
-#import "Doorbell.h"
+#import "Doorbell.Doorbell.h"
 ```
 
 Then when you want to show the dialog:
