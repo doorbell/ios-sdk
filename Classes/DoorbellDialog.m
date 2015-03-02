@@ -401,7 +401,7 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 
 -(void)textViewDidEndEditing:(UITextField *)textField
 {
-    [self verticalOffsetBy:0];
+//    [self verticalOffsetBy:0];
 }
 
 - (void)textViewDidChange:(UITextView *)textView
@@ -424,7 +424,7 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 
 -(void)textFieldDidEndEditing:(UITextField *)textField
 {
-    [self verticalOffsetBy:0];
+//    [self verticalOffsetBy:0];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
