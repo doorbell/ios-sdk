@@ -9,16 +9,16 @@
 Pod::Spec.new do |s|
 
   s.name         = "Doorbell"
-  s.version      = "0.0.2"
-  s.summary      = "In-app customer support SDK for Doorbell.io"
+  s.version      = "0.0.3"
+  s.summary      = "In-app user feedback gathering SDK for Doorbell.io"
   s.description  = "Easily gather in-app feedback from your users, for free!"
   s.homepage     = "https://doorbell.io"
   s.license      = "MIT"
   s.author    = "manavo"
-  s.social_media_url   = "http://twitter.com/manavo"
+  s.social_media_url   = "http://twitter.com/doorbell_io"
   s.platform     = :ios, "5.0"
-  s.source       = { :git => "https://github.com/doorbell/ios-sdk.git", :tag => "0.0.2" }
-  s.source_files  = "Classes/*.{h,m}"
+  s.source       = { :git => "https://github.com/doorbell/ios-sdk.git", :tag => "0.0.3" }
+  s.source_files  = "Classes"
   s.framework  = "QuartzCore"
   s.requires_arc = true
 
