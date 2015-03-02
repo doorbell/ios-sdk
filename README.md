@@ -6,11 +6,9 @@ The Doorbell iOS SDK.
 
 You can view the full documentation here: https://doorbell.io/docs/ios
 
-## Requirements
+## Installation
 
-Doorbell needs the ```QuartzCore.framework``` to be included in your project.
-
-You'll need [Automatic Reference Counting (ARC)](http://en.wikipedia.org/wiki/Automatic_Reference_Counting) enabled.
+Include Doorbell via CocoaPods: http://cocoapods.org/?q=on%3Aios%20doorbell
 
 ## Usage
 
