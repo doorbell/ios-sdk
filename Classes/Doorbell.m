@@ -136,7 +136,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
                                if ([r isKindOfClass:[NSHTTPURLResponse class]]) {
                                    NSHTTPURLResponse *httpResp = (id)r;
                                    if (httpResp.statusCode != 201) {
-                                       NSLog(@"%d: There was an error trying to connect with doorbell. Open called failed", httpResp.statusCode);
+                                       NSLog(@"%d: There was an error trying to connect with doorbell. Open called failed", (int)httpResp.statusCode);
                                        NSLog(@"%@", [NSString stringWithUTF8String:d.bytes]);
                                    }
                                }
@@ -177,7 +177,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
                                if ([r isKindOfClass:[NSHTTPURLResponse class]]) {
                                    NSHTTPURLResponse *httpResp = (id)r;
                                    NSString *content = [NSString stringWithUTF8String:d.bytes];
-                                   NSLog(@"%d:%@", httpResp.statusCode, content);
+                                   NSLog(@"%d:%@", (int)httpResp.statusCode, content);
 
                                    [self manageSubmitResponse:httpResp content:content];
                                }
@@ -197,7 +197,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
         default:
             [self.dialog removeFromSuperview];
-            self.block([NSError errorWithDomain:@"doorbell.io" code:3 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"%d: HTTP unexpected\n%@", response.statusCode, content]}] , YES);
+            self.block([NSError errorWithDomain:@"doorbell.io" code:3 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"%d: HTTP unexpected\n%@", (int)response.statusCode, content]}] , YES);
             break;
     }
 }
