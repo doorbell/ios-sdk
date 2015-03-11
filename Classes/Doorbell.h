@@ -9,6 +9,7 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 @property (strong, nonatomic)   NSString *apiKey;
 @property (strong, nonatomic)   NSString *appID;
 @property (strong, nonatomic)   NSString *email;
+@property (strong, nonatomic)   NSString *name;
 @property (assign, nonatomic)   BOOL showEmail;
 @property (assign, nonatomic)   BOOL showPoweredBy;
 

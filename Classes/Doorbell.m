@@ -22,6 +22,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         _showPoweredBy = YES;
         self.apiKey = apiKey;
         self.appID = appID;
+        self.name = @"";
 
         self.properties = [[NSMutableDictionary alloc] init];
     }
@@ -155,6 +156,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     [submitData setValue:message forKey:@"message"];
     [submitData setValue:email forKey:@"email"];
     [submitData setValue:self.properties forKey:@"properties"];
+    [submitData setValue:self.name forKey:@"name"];
 
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:submitData
