@@ -18,4 +18,6 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 
 - (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion;
 
+- (void)addPropertyWithName:(NSString*)name AndValue:(id)value;
+
 @end

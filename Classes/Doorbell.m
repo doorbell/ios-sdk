@@ -8,6 +8,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
 @property (copy, nonatomic)     DoorbellCompletionBlock block;//Block to give the result
 @property (strong, nonatomic)   DoorbellDialog *dialog;
+@property (strong, nonatomic)   NSMutableDictionary *properties;
 
 @end
 
@@ -21,6 +22,8 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         _showPoweredBy = YES;
         self.apiKey = apiKey;
         self.appID = appID;
+
+        self.properties = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -151,6 +154,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     NSMutableDictionary *submitData = [[NSMutableDictionary alloc] init];
     [submitData setValue:message forKey:@"message"];
     [submitData setValue:email forKey:@"email"];
+    [submitData setValue:self.properties forKey:@"properties"];
 
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:submitData
@@ -183,6 +187,10 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
                                }
                            }];
 
+}
+
+- (void)addPropertyWithName:(NSString*)name AndValue:(id)value {
+    [self.properties setValue:value forKey:name];
 }
 
 - (void)manageSubmitResponse:(NSHTTPURLResponse*)response content:(NSString*)content
