@@ -148,27 +148,27 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     NSString *query = [NSString stringWithFormat:EndpointTemplate, self.appID, @"submit", self.apiKey];
     NSURL *submitURL = [NSURL URLWithString:query];
 
-    NSString *escapedEmail = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(
-                                                                                  NULL,
-                                                                                  (CFStringRef)email,
-                                                                                  NULL,
-                                                                                  CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                  kCFStringEncodingUTF8));
+    NSMutableDictionary *submitData = [[NSMutableDictionary alloc] init];
+    [submitData setValue:message forKey:@"message"];
+    [submitData setValue:email forKey:@"email"];
 
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:submitData
+                                                       options:(NSJSONWritingOptions)0
+                                                         error:&error];
 
-    NSString *escapedMessage = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(
-                                                                                                   NULL,
-                                                                                                   (CFStringRef)message,
-                                                                                                   NULL,
-                                                                                                   CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                                   kCFStringEncodingUTF8));
-
-
+    if (! jsonData) {
+        NSLog(@"JSON Encoding error: %@", error.localizedDescription);
+        return;
+    }
 
     NSMutableURLRequest *submitRequest = [NSMutableURLRequest requestWithURL:submitURL];
     [submitRequest setHTTPMethod:@"POST"];
     [submitRequest addValue:UserAgent forHTTPHeaderField:@"User-Agent"];
-    NSString *postString = [NSString stringWithFormat:@"message=%@&email=%@", escapedMessage, escapedEmail];
+    [submitRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+
+    NSString *postString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
     [submitRequest setHTTPBody:[postString dataUsingEncoding:NSUTF8StringEncoding]];
 
     [NSURLConnection sendAsynchronousRequest:submitRequest
