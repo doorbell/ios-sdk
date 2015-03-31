@@ -6,6 +6,21 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		72D7615E1ACAE146006ABB92 /* DoorbelliOSUniversalFramework */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 72D761611ACAE146006ABB92 /* Build configuration list for PBXAggregateTarget "DoorbelliOSUniversalFramework" */;
+			buildPhases = (
+				72D761641ACAE186006ABB92 /* ShellScript */,
+			);
+			dependencies = (
+				72D761631ACAE17E006ABB92 /* PBXTargetDependency */,
+			);
+			name = DoorbelliOSUniversalFramework;
+			productName = DoorbelliOSUniversalFramework;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		45327E471ACADE9B002B7A06 /* DoorbelliOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 45327E461ACADE9B002B7A06 /* DoorbelliOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		45327E691ACADEF8002B7A06 /* Doorbell.h in Headers */ = {isa = PBXBuildFile; fileRef = 45327E651ACADEF8002B7A06 /* Doorbell.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -13,6 +28,16 @@
 		45327E6B1ACADEF8002B7A06 /* DoorbellDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 45327E671ACADEF8002B7A06 /* DoorbellDialog.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		45327E6C1ACADEF8002B7A06 /* DoorbellDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 45327E681ACADEF8002B7A06 /* DoorbellDialog.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		72D761621ACAE17E006ABB92 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 45327E381ACADE9B002B7A06 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 45327E401ACADE9B002B7A06;
+			remoteInfo = DoorbelliOS;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		45327E411ACADE9B002B7A06 /* DoorbelliOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DoorbelliOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -118,6 +143,9 @@
 					45327E401ACADE9B002B7A06 = {
 						CreatedOnToolsVersion = 6.2;
 					};
+					72D7615E1ACAE146006ABB92 = {
+						CreatedOnToolsVersion = 6.2;
+					};
 				};
 			};
 			buildConfigurationList = 45327E3B1ACADE9B002B7A06 /* Build configuration list for PBXProject "DoorbelliOS" */;
@@ -133,6 +161,7 @@
 			projectRoot = "";
 			targets = (
 				45327E401ACADE9B002B7A06 /* DoorbelliOS */,
+				72D7615E1ACAE146006ABB92 /* DoorbelliOSUniversalFramework */,
 			);
 		};
 /* End PBXProject section */
@@ -147,6 +176,22 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		72D761641ACAE186006ABB92 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/sh\n\n# This script builds the framework for both the simulator and the device, and then combines\n# them into one binary using lipo.\n#\n# On build success, the result is placed into the project folder, and finder will open to\n# that location for convenient access to the newly built framework.\n\nUNIVERSAL_OUTPUTFOLDER=${BUILD_DIR}/${CONFIGURATION}-universal\n\n# make sure the output directory exists\nmkdir -p \"${UNIVERSAL_OUTPUTFOLDER}\"\n\n# Step 1. Build Device and Simulator versions\nxcodebuild -target \"${PROJECT_NAME}\" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk iphoneos  BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\nxcodebuild -target \"${PROJECT_NAME}\" -configuration ${CONFIGURATION} -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\n\n# Step 2. Copy the framework structure (from iphoneos build) to the universal folder\ncp -R \"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${PROJECT_NAME}.framework\" \"${UNIVERSAL_OUTPUTFOLDER}/\"\n\n# Step 3. Create universal binary file using lipo and place the combined executable in the copied framework directory\nlipo -create -output \"${UNIVERSAL_OUTPUTFOLDER}/${PROJECT_NAME}.framework/${PROJECT_NAME}\" \"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${PROJECT_NAME}.framework/${PROJECT_NAME}\" \"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${PROJECT_NAME}.framework/${PROJECT_NAME}\"\n\n# Step 4. Convenience step to copy the framework to the project's directory\ncp -R \"${UNIVERSAL_OUTPUTFOLDER}/${PROJECT_NAME}.framework\" \"${PROJECT_DIR}/build\"\n\n# Step 5. Convenience step to open the project's directory in Finder\nopen \"${PROJECT_DIR}/build\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		45327E3C1ACADE9B002B7A06 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -158,6 +203,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		72D761631ACAE17E006ABB92 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 45327E401ACADE9B002B7A06 /* DoorbelliOS */;
+			targetProxy = 72D761621ACAE17E006ABB92 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		45327E551ACADE9B002B7A06 /* Debug */ = {
@@ -274,6 +327,20 @@
 			};
 			name = Release;
 		};
+		72D7615F1ACAE146006ABB92 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		72D761601ACAE146006ABB92 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -291,6 +358,15 @@
 			buildConfigurations = (
 				45327E581ACADE9B002B7A06 /* Debug */,
 				45327E591ACADE9B002B7A06 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		72D761611ACAE146006ABB92 /* Build configuration list for PBXAggregateTarget "DoorbelliOSUniversalFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				72D7615F1ACAE146006ABB92 /* Debug */,
+				72D761601ACAE146006ABB92 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
