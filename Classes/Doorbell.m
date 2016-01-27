@@ -9,8 +9,9 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 @property (copy, nonatomic)     DoorbellCompletionBlock block;//Block to give the result
 @property (strong, nonatomic)   DoorbellDialog *dialog;
 @property (strong, nonatomic)   NSMutableDictionary *properties;
+@property (strong, nonatomic)   NSMutableArray *images;
 @property (strong, nonatomic)   NSURLSession *session;
-
+@property (strong, nonatomic)   NSString *imageBoundary;
 @end
 
 @implementation Doorbell
@@ -24,8 +25,10 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         self.apiKey = apiKey;
         self.appID = appID;
         self.name = @"";
+        self.imageBoundary = @"FileUploadFormBoundaryForUsAll";
 
         self.properties = [[NSMutableDictionary alloc] init];
+        self.images = [[NSMutableArray alloc] init];
 
         NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
         //sessionConfig.allowsCellularAccess = NO;
@@ -196,10 +199,67 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
                                                            }
                                                        }];
     [submitTask resume];
+
+    if (self.images.count > 0) {
+        [self uploadImages];
+    }
+}
+
+- (void)uploadImages {
+    NSURLSessionConfiguration *conf = [[NSURLSessionConfiguration alloc] init];
+    [conf setHTTPAdditionalHeaders:@{@"Accept"        : @"application/json",
+                                     @"Content-Type"  : [NSString stringWithFormat:@"multipart/form-data; boundary=%@", self.imageBoundary]
+                                     }];
+    NSURLSession *uploadSession = [NSURLSession sessionWithConfiguration:conf];
+
+    NSString *query = [NSString stringWithFormat:EndpointTemplate, self.appID, @"submit", self.apiKey];
+    NSURL *uploadURL = [NSURL URLWithString:query];
+
+    NSMutableURLRequest *uploadRequest = [[NSMutableURLRequest alloc] initWithURL:uploadURL];
+    uploadRequest.HTTPMethod = @"POST";
+    //uploadRequest.HTTPBody = [self createImageUploadBodyData];
+
+    NSURLSessionUploadTask *uploadTask = [uploadSession uploadTaskWithRequest:uploadRequest
+                                                                     fromData:[self createImageUploadBodyData]
+                                                            completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                                                                if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+                                                                    NSHTTPURLResponse *httpResp = (id)response;
+                                                                    NSString *content = [NSString stringWithUTF8String:data.bytes];
+                                                                    NSLog(@"%d:%@", (int)httpResp.statusCode, content);
+//                                                                    dispatch_async(dispatch_get_main_queue(), ^{
+//                                                                        [self manageSubmitResponse:httpResp content:content];
+//                                                                    });
+                                                                }
+                                                            }];
+}
+
+  // Accepts an array of Dictionaries
+  // @{@"data": NSDataOfImage, @"name": nameOfImage}
+- (NSData *)createImageUploadBodyData {
+    NSMutableData *body = [NSMutableData data];
+    for (NSDictionary *image in self.images) {
+        if (image[@"data"] && image[@"name"]) {
+            [body appendData:[[NSString stringWithFormat:@"--%@\r\n", self.imageBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
+            [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"%@.jpg\"\r\n", image[@"name"], image[@"name"]] dataUsingEncoding:NSUTF8StringEncoding]];
+            [body appendData:[@"Content-Type: image/jpeg\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+            [body appendData:image[@"data"]];
+            [body appendData:[[NSString stringWithFormat:@"\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+        }
+    }
+    [body appendData:[[NSString stringWithFormat:@"--%@--\r\n", self.imageBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    return body;
 }
 
 - (void)addPropertyWithName:(NSString*)name AndValue:(id)value {
     [self.properties setValue:value forKey:name];
+}
+
+- (void)addImage:(UIImage *)image WithName:(NSString *)name {
+    if (image && name) {
+        NSData *imgData = UIImageJPEGRepresentation(image, 0.5);
+        NSDictionary *img = @{@"data": imgData, @"name": name};
+        [self.images addObject:img];
+    }
 }
 
 - (void)manageSubmitResponse:(NSHTTPURLResponse*)response content:(NSString*)content

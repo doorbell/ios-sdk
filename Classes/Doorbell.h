@@ -21,4 +21,6 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 
 - (void)addPropertyWithName:(NSString*)name AndValue:(id)value;
 
+- (void)addImage:(UIImage *)image WithName:(NSString *)name;
+
 @end
