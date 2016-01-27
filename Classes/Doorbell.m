@@ -9,6 +9,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 @property (copy, nonatomic)     DoorbellCompletionBlock block;//Block to give the result
 @property (strong, nonatomic)   DoorbellDialog *dialog;
 @property (strong, nonatomic)   NSMutableDictionary *properties;
+@property (strong, nonatomic)   NSURLSession *session;
 
 @end
 
@@ -25,6 +26,17 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         self.name = @"";
 
         self.properties = [[NSMutableDictionary alloc] init];
+
+        NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+        //sessionConfig.allowsCellularAccess = NO;
+        [sessionConfig setHTTPAdditionalHeaders:@{@"Content-Type": @"application/json",
+                                                   @"Accept": @"application/json",
+                                                   @"User-Agent": UserAgent
+                                                   }];
+        sessionConfig.timeoutIntervalForRequest = 30.0;
+        sessionConfig.timeoutIntervalForResource = 60.0;
+        sessionConfig.HTTPMaximumConnectionsPerHost = 1;
+        _session = [NSURLSession sessionWithConfiguration:sessionConfig];
     }
     return self;
 }
@@ -132,19 +144,19 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     NSURL *openURL = [NSURL URLWithString:query];
     NSMutableURLRequest *openRequest = [NSMutableURLRequest requestWithURL:openURL];
     [openRequest setHTTPMethod:@"POST"];
-    [openRequest addValue:UserAgent forHTTPHeaderField:@"User-Agent"];
-    [NSURLConnection sendAsynchronousRequest:openRequest
-                                       queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse *r, NSData *d, NSError *e) {
 
-                               if ([r isKindOfClass:[NSHTTPURLResponse class]]) {
-                                   NSHTTPURLResponse *httpResp = (id)r;
-                                   if (httpResp.statusCode != 201) {
-                                       NSLog(@"%d: There was an error trying to connect with doorbell. Open called failed", (int)httpResp.statusCode);
-                                       NSLog(@"%@", [NSString stringWithUTF8String:d.bytes]);
-                                   }
-                               }
-                           }];
+
+    NSURLSessionDataTask *openTask = [_session dataTaskWithRequest:openRequest
+                                                 completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                                                     if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+                                                         NSHTTPURLResponse *httpResp = (id)response;
+                                                         if (httpResp.statusCode != 201) {
+                                                             NSLog(@"%d: There was an error trying to connect with doorbell. Open called failed", (int)httpResp.statusCode);
+                                                             NSLog(@"%@", [NSString stringWithUTF8String:data.bytes]);
+                                                         }
+                                                     }
+                                                 }];
+    [openTask resume];
 }
 
 - (void)sendSubmit:(NSString*)message email:(NSString*)email
@@ -170,25 +182,20 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
     NSMutableURLRequest *submitRequest = [NSMutableURLRequest requestWithURL:submitURL];
     [submitRequest setHTTPMethod:@"POST"];
-    [submitRequest addValue:UserAgent forHTTPHeaderField:@"User-Agent"];
-    [submitRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
 
-    NSString *postString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-
-    [submitRequest setHTTPBody:[postString dataUsingEncoding:NSUTF8StringEncoding]];
-
-    [NSURLConnection sendAsynchronousRequest:submitRequest
-                                       queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse *r, NSData *d, NSError *e) {
-                               if ([r isKindOfClass:[NSHTTPURLResponse class]]) {
-                                   NSHTTPURLResponse *httpResp = (id)r;
-                                   NSString *content = [NSString stringWithUTF8String:d.bytes];
-                                   NSLog(@"%d:%@", (int)httpResp.statusCode, content);
-
-                                   [self manageSubmitResponse:httpResp content:content];
-                               }
-                           }];
-
+    NSURLSessionUploadTask *submitTask = [_session uploadTaskWithRequest:submitRequest
+                                                               fromData:jsonData
+                                                      completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                                                           if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+                                                               NSHTTPURLResponse *httpResp = (id)response;
+                                                               NSString *content = [NSString stringWithUTF8String:data.bytes];
+                                                               NSLog(@"%d:%@", (int)httpResp.statusCode, content);
+                                                               dispatch_async(dispatch_get_main_queue(), ^{
+                                                                   [self manageSubmitResponse:httpResp content:content];
+                                                               });
+                                                           }
+                                                       }];
+    [submitTask resume];
 }
 
 - (void)addPropertyWithName:(NSString*)name AndValue:(id)value {
