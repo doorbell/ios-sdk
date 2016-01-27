@@ -143,11 +143,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         return;
     }
 
-    NSString *query = [NSString stringWithFormat:EndpointTemplate, self.appID, @"open", self.apiKey];
-    NSURL *openURL = [NSURL URLWithString:query];
-    NSMutableURLRequest *openRequest = [NSMutableURLRequest requestWithURL:openURL];
-    [openRequest setHTTPMethod:@"POST"];
-
+    NSMutableURLRequest *openRequest = [self createRequestWithType:@"open"];
 
     NSURLSessionDataTask *openTask = [_session dataTaskWithRequest:openRequest
                                                  completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -164,14 +160,31 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
 - (void)sendSubmit:(NSString*)message email:(NSString*)email
 {
-    NSString *query = [NSString stringWithFormat:EndpointTemplate, self.appID, @"submit", self.apiKey];
-    NSURL *submitURL = [NSURL URLWithString:query];
+    if (self.images.count > 0) {
+        [self uploadImagesWithMessage:message WithEmail:email];
+    }
+    else {
+        NSData *jsonData = [self createSubmitDataWithMessage:message
+                                                   WithEmail:email
+                                           WithAttachmentIds:nil];
 
+        NSMutableURLRequest *submitRequest = [self createRequestWithType:@"submit"];
+        [self sendUploadRequest:submitRequest WithData:jsonData];
+    }
+}
+
+- (NSData *)createSubmitDataWithMessage:(NSString *)message
+                              WithEmail:(NSString *)email
+                      WithAttachmentIds:(NSArray *)attachmentIds {
     NSMutableDictionary *submitData = [[NSMutableDictionary alloc] init];
     [submitData setValue:message forKey:@"message"];
     [submitData setValue:email forKey:@"email"];
     [submitData setValue:self.properties forKey:@"properties"];
     [submitData setValue:self.name forKey:@"name"];
+
+    if (attachmentIds != nil) {
+        [submitData setValue:attachmentIds forKey:@"attachments"];
+    }
 
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:submitData
@@ -180,45 +193,51 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
     if (! jsonData) {
         NSLog(@"JSON Encoding error: %@", error.localizedDescription);
-        return;
+        return nil;
     }
 
-    NSMutableURLRequest *submitRequest = [NSMutableURLRequest requestWithURL:submitURL];
-    [submitRequest setHTTPMethod:@"POST"];
-
-    NSURLSessionUploadTask *submitTask = [_session uploadTaskWithRequest:submitRequest
-                                                               fromData:jsonData
-                                                      completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                                                           if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-                                                               NSHTTPURLResponse *httpResp = (id)response;
-                                                               NSString *content = [NSString stringWithUTF8String:data.bytes];
-                                                               NSLog(@"%d:%@", (int)httpResp.statusCode, content);
-                                                               dispatch_async(dispatch_get_main_queue(), ^{
-                                                                   [self manageSubmitResponse:httpResp content:content];
-                                                               });
-                                                           }
-                                                       }];
-    [submitTask resume];
-
-    if (self.images.count > 0) {
-        [self uploadImages];
-    }
+    return jsonData;
 }
 
-- (void)uploadImages {
-    NSURLSessionConfiguration *conf = [[NSURLSessionConfiguration alloc] init];
-    [conf setHTTPAdditionalHeaders:@{@"Accept"        : @"application/json",
-                                     @"Content-Type"  : [NSString stringWithFormat:@"multipart/form-data; boundary=%@", self.imageBoundary]
+- (NSMutableURLRequest *)createRequestWithType:(NSString *)type {
+    NSString *query = [NSString stringWithFormat:EndpointTemplate, self.appID, type, self.apiKey];
+    NSURL *url = [NSURL URLWithString:query];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
+    if ([type isEqualToString:@"submit"] ||
+        [type isEqualToString:@"open"] ||
+        [type isEqualToString:@"upload"]) {
+        request.HTTPMethod = @"POST";
+    }
+    return request;
+}
+
+- (void)sendUploadRequest:(NSMutableURLRequest *)request WithData:(NSData *)data {
+    NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:request
+                                                                fromData:data
+                                                       completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                                                                if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+                                                                    NSHTTPURLResponse *httpResp = (id)response;
+                                                                    NSString *content = [NSString stringWithUTF8String:data.bytes];
+                                                                    NSLog(@"%d:%@", (int)httpResp.statusCode, content);
+                                                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                                                        [self manageSubmitResponse:httpResp content:content];
+                                                                    });
+                                                                }
+                                                            }];
+    [uploadTask resume];
+}
+
+- (void)uploadImagesWithMessage:(NSString *)message WithEmail:(NSString *)email {
+    NSURLSessionConfiguration *conf = [NSURLSessionConfiguration defaultSessionConfiguration];
+    [conf setHTTPAdditionalHeaders:@{@"Content-Type": [NSString stringWithFormat:@"multipart/form-data; boundary=%@", self.imageBoundary],
+                                     @"Accept": @"application/json",
+                                     @"User-Agent": UserAgent
                                      }];
     NSURLSession *uploadSession = [NSURLSession sessionWithConfiguration:conf];
 
-    NSString *query = [NSString stringWithFormat:EndpointTemplate, self.appID, @"submit", self.apiKey];
-    NSURL *uploadURL = [NSURL URLWithString:query];
+    NSMutableURLRequest *uploadRequest = [self createRequestWithType:@"upload"];
 
-    NSMutableURLRequest *uploadRequest = [[NSMutableURLRequest alloc] initWithURL:uploadURL];
-    uploadRequest.HTTPMethod = @"POST";
-    //uploadRequest.HTTPBody = [self createImageUploadBodyData];
-
+    __block Doorbell *weakSelf = self;
     NSURLSessionUploadTask *uploadTask = [uploadSession uploadTaskWithRequest:uploadRequest
                                                                      fromData:[self createImageUploadBodyData]
                                                             completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -226,11 +245,26 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
                                                                     NSHTTPURLResponse *httpResp = (id)response;
                                                                     NSString *content = [NSString stringWithUTF8String:data.bytes];
                                                                     NSLog(@"%d:%@", (int)httpResp.statusCode, content);
-//                                                                    dispatch_async(dispatch_get_main_queue(), ^{
-//                                                                        [self manageSubmitResponse:httpResp content:content];
-//                                                                    });
+                                                                    NSError *error;
+                                                                    NSArray *attachmentIds = [NSJSONSerialization JSONObjectWithData:data
+                                                                                                                             options:NSJSONReadingAllowFragments
+                                                                                                                               error:&error];
+                                                                    if (attachmentIds) {
+                                                                        NSData *jsonData = [weakSelf createSubmitDataWithMessage:message
+                                                                                                                   WithEmail:email
+                                                                                                           WithAttachmentIds:attachmentIds];
+
+                                                                        NSMutableURLRequest *submitRequest = [weakSelf createRequestWithType:@"submit"];
+                                                                        [weakSelf sendUploadRequest:submitRequest WithData:jsonData];
+                                                                    }
+                                                                    else {
+                                                                        dispatch_async(dispatch_get_main_queue(), ^{
+                                                                            [self manageSubmitResponse:httpResp content:content];
+                                                                        });
+                                                                    }
                                                                 }
                                                             }];
+    [uploadTask resume];
 }
 
   // Accepts an array of Dictionaries
