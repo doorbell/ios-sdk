@@ -1,10 +1,17 @@
-#import "DoorbellDialog.h"
+//
+//  DoorbellViewController.m
+//  DoorbelliOS
+//
+//  Created by Nicolas Peariso on 1/28/16.
+//  Copyright © 2016 Doorbell. All rights reserved.
+//
+
+#import "DoorbellViewController.h"
 #import <QuartzCore/QuartzCore.h>
 
-//NSString * const DoorbellSite = @"http://doorbell.io";
+NSString * const DoorbellSite = @"http://doorbell.io";
 
-@interface DoorbellDialog ()
-
+@interface DoorbellViewController ()
 @property (strong, nonatomic) UIView *boxView;
 @property (strong, nonatomic) UITextView *bodyView;
 @property (strong, nonatomic) UITextField *emailField;
@@ -13,61 +20,46 @@
 @property (strong, nonatomic) UIView *poweredBy;
 @property (strong, nonatomic) UILabel *bodyPlaceHolderLabel;
 @property (strong, nonatomic) UILabel *sendingLabel;
-@property (strong, nonatomic) UIViewController *parentViewController;
+//@property (strong, nonatomic) UIViewController *parentViewController;
 
 @property UIDeviceOrientation lastDeviceOrientation;
-
 @end
 
-@implementation DoorbellDialog
+@implementation DoorbellViewController
 
-- (id)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self) {
-        _showEmail = YES;
-        _showPoweredBy = YES;
-        _sending = NO;
-        // Initialization code
-        self.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.4];
-        self.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin;
-        CGRect boxFrame;
-        boxFrame.size = CGSizeMake(300, 255);
-        boxFrame.origin.x = (frame.size.width/2) - boxFrame.size.width/2;
-        boxFrame.origin.y = (frame.size.height - boxFrame.size.height) / 2;
-        _boxView = [[UIView alloc] initWithFrame:boxFrame];
-        _boxView.backgroundColor = [UIColor whiteColor];
-        _boxView.layer.masksToBounds = NO;
-        _boxView.layer.cornerRadius = 2.0f;
-        //_boxView.layer.borderColor = [UIColor blackColor].CGColor;
-        //_boxView.layer.borderWidth = 1.0f;
-        _boxView.layer.shadowColor = [UIColor blackColor].CGColor;
-        _boxView.layer.shadowRadius = 2.0f;
-        _boxView.layer.shadowOffset = CGSizeMake(0, 1);
-        _boxView.layer.shadowOpacity = 0.7f;
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    _showEmail = YES;
+    _showPoweredBy = YES;
+    _sending = NO;
+    // Initialization code
+    [self.view setBackgroundColor:[UIColor colorWithWhite:0.2 alpha:0.4]];
+    //self.view.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.4];
+    self.view.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin;
+    CGRect boxFrame;
+    boxFrame.size = CGSizeMake(300, 255);
+    boxFrame.origin.x = (self.view.frame.size.width/2) - boxFrame.size.width/2;
+    boxFrame.origin.y = (self.view.frame.size.height - boxFrame.size.height) / 2;
+    _boxView = [[UIView alloc] initWithFrame:boxFrame];
+    _boxView.backgroundColor = [UIColor whiteColor];
+    _boxView.layer.masksToBounds = NO;
+    _boxView.layer.cornerRadius = 2.0f;
+    //_boxView.layer.borderColor = [UIColor blackColor].CGColor;
+    //_boxView.layer.borderWidth = 1.0f;
+    _boxView.layer.shadowColor = [UIColor blackColor].CGColor;
+    _boxView.layer.shadowRadius = 2.0f;
+    _boxView.layer.shadowOffset = CGSizeMake(0, 1);
+    _boxView.layer.shadowOpacity = 0.7f;
 
-        [self createBoxSubviews];
+    [self createBoxSubviews];
 
-        [self addSubview:_boxView];
-
-    }
-    return self;
+    [self.view addSubview:_boxView];
 }
 
-- (id)initWithViewController:(UIViewController *)vc
-{
-    CGRect frame = vc.view.bounds;
-    self = [self initWithFrame:frame];
-    if (self) {
-        self.parentViewController = vc;
-
-        [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self selector:@selector(orientationChanged:)
-         name:UIDeviceOrientationDidChangeNotification
-         object:[UIDevice currentDevice]];
-    }
-    return self;
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
 }
 
 - (void)dealloc
@@ -122,8 +114,8 @@
 
 - (void)goToDoorbell:(id)sender
 {
-//    NSURL *doorbellURL = [NSURL URLWithString:DoorbellSite];
-//    [[UIApplication sharedApplication] openURL:doorbellURL];
+    NSURL *doorbellURL = [NSURL URLWithString:DoorbellSite];
+    [[UIApplication sharedApplication] openURL:doorbellURL];
 }
 
 - (void)send:(id)sender
@@ -133,16 +125,16 @@
         return;
     }
 
-//    if ([_delegate respondsToSelector:@selector(dialogDidSend:)]) {
-//        [_delegate dialogDidSend:self];
-//    }
+    if ([_delegate respondsToSelector:@selector(dialogDidSend:)]) {
+        [_delegate dialogDidSend:self];
+    }
 }
 
 - (void)cancel:(id)sender
 {
-//    if ([_delegate respondsToSelector:@selector(dialogDidCancel:)]) {
-//        [_delegate dialogDidCancel:self];
-//    }
+    if ([_delegate respondsToSelector:@selector(dialogDidCancel:)]) {
+        [_delegate dialogDidCancel:self];
+    }
     [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
@@ -215,13 +207,13 @@
     }
 }
 /*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect
-{
-    // Drawing code
-}
-*/
+ // Only override drawRect: if you perform custom drawing.
+ // An empty implementation adversely affects performance during animation.
+ - (void)drawRect:(CGRect)rect
+ {
+ // Drawing code
+ }
+ */
 
 - (void)layoutSubviews
 {
@@ -243,7 +235,7 @@
     frame.size.height = offsetY + 44.0f;
     _boxView.frame = frame;
 
-    [super layoutSubviews];
+    [self.view layoutSubviews];
 }
 
 - (void)createBoxSubviews
@@ -274,7 +266,7 @@
     _bodyView.keyboardAppearance = UIKeyboardAppearanceAlert;
 
     UIBarButtonItem *bodyDoneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil)
-                                                                    style:UIBarButtonItemStyleDone target:_bodyView action:@selector(resignFirstResponder)];
+                                                                       style:UIBarButtonItemStyleDone target:_bodyView action:@selector(resignFirstResponder)];
     UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
     UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
     toolbar.items = [NSArray arrayWithObjects:flexibleSpace, bodyDoneButton, nil];
@@ -312,7 +304,7 @@
 
 
     UIBarButtonItem *emailDoneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil)
-                                                                       style:UIBarButtonItemStyleDone target:_emailField action:@selector(resignFirstResponder)];
+                                                                        style:UIBarButtonItemStyleDone target:_emailField action:@selector(resignFirstResponder)];
     UIBarButtonItem *emailFlexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
     UIToolbar *emailToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
     emailToolbar.items = [NSArray arrayWithObjects:emailFlexibleSpace, emailDoneButton, nil];
@@ -401,7 +393,7 @@
 
 -(void)textViewDidEndEditing:(UITextField *)textField
 {
-//    [self verticalOffsetBy:0];
+    //    [self verticalOffsetBy:0];
 }
 
 - (void)textViewDidChange:(UITextView *)textView
@@ -424,7 +416,7 @@
 
 -(void)textFieldDidEndEditing:(UITextField *)textField
 {
-//    [self verticalOffsetBy:0];
+    //    [self verticalOffsetBy:0];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -433,5 +425,15 @@
     [self send:textField];
     return NO;
 }
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
 
 @end

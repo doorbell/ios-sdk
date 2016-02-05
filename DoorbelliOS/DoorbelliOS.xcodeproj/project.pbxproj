@@ -22,6 +22,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		36AD63A51C5A36FD00000A55 /* DoorbellViewController.h in Sources */ = {isa = PBXBuildFile; fileRef = 36AD63A31C5A36FD00000A55 /* DoorbellViewController.h */; };
+		36AD63A61C5A36FD00000A55 /* DoorbellViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD63A41C5A36FD00000A55 /* DoorbellViewController.m */; };
 		45327E471ACADE9B002B7A06 /* DoorbelliOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 45327E461ACADE9B002B7A06 /* DoorbelliOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		45327E691ACADEF8002B7A06 /* Doorbell.h in Headers */ = {isa = PBXBuildFile; fileRef = 45327E651ACADEF8002B7A06 /* Doorbell.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		45327E6A1ACADEF8002B7A06 /* Doorbell.m in Sources */ = {isa = PBXBuildFile; fileRef = 45327E661ACADEF8002B7A06 /* Doorbell.m */; };
@@ -40,6 +42,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		36AD63A31C5A36FD00000A55 /* DoorbellViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.objj.h; name = DoorbellViewController.h; path = ../../Classes/DoorbellViewController.h; sourceTree = "<group>"; };
+		36AD63A41C5A36FD00000A55 /* DoorbellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DoorbellViewController.m; path = ../../Classes/DoorbellViewController.m; sourceTree = "<group>"; };
 		45327E411ACADE9B002B7A06 /* DoorbelliOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DoorbelliOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		45327E451ACADE9B002B7A06 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		45327E461ACADE9B002B7A06 /* DoorbelliOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DoorbelliOS.h; sourceTree = "<group>"; };
@@ -85,6 +89,8 @@
 				45327E671ACADEF8002B7A06 /* DoorbellDialog.h */,
 				45327E681ACADEF8002B7A06 /* DoorbellDialog.m */,
 				45327E441ACADE9B002B7A06 /* Supporting Files */,
+				36AD63A31C5A36FD00000A55 /* DoorbellViewController.h */,
+				36AD63A41C5A36FD00000A55 /* DoorbellViewController.m */,
 			);
 			path = DoorbelliOS;
 			sourceTree = "<group>";
@@ -198,6 +204,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				45327E6C1ACADEF8002B7A06 /* DoorbellDialog.m in Sources */,
+				36AD63A61C5A36FD00000A55 /* DoorbellViewController.m in Sources */,
+				36AD63A51C5A36FD00000A55 /* DoorbellViewController.h in Sources */,
 				45327E6A1ACADEF8002B7A06 /* Doorbell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -369,6 +377,7 @@
 				72D761601ACAE146006ABB92 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

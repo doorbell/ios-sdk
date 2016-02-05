@@ -1,5 +1,6 @@
 #import "Doorbell.h"
 #import "DoorbellDialog.h"
+#import "DoorbellViewController.h"
 
 NSString * const EndpointTemplate = @"https://doorbell.io/api/applications/%@/%@?key=%@";
 NSString * const UserAgent = @"Doorbell iOS SDK";
@@ -7,6 +8,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 @interface Doorbell () <DoorbellDialogDelegate>
 
 @property (copy, nonatomic)     DoorbellCompletionBlock block;//Block to give the result
+@property (strong, nonatomic)   DoorbellViewController *doorbellVC;
 @property (strong, nonatomic)   DoorbellDialog *dialog;
 @property (strong, nonatomic)   NSMutableDictionary *properties;
 @property (strong, nonatomic)   NSMutableArray *images;
@@ -73,13 +75,16 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     }
 
     self.block = completion;
-    self.dialog = [[DoorbellDialog alloc] initWithViewController:vc];
-    self.dialog.delegate = self;
-    self.dialog.showEmail = self.showEmail;
-    self.dialog.email = self.email;
-    self.dialog.showPoweredBy = self.showPoweredBy;
-    [vc.view addSubview:self.dialog];
-
+    self.doorbellVC = [[DoorbellViewController alloc] init];
+    self.doorbellVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    self.doorbellVC.delegate = self;
+//    self.dialog = [[DoorbellDialog alloc] initWithViewController:vc];
+//    self.dialog.delegate = self;
+//    self.dialog.showEmail = self.showEmail;
+//    self.dialog.email = self.email;
+//    self.dialog.showPoweredBy = self.showPoweredBy;
+//    [vc.view addSubview:self.dialog];
+    [vc presentViewController:self.doorbellVC animated:YES completion:nil];
     //Open - Request sent when the form is displayed to the user.
     [self sendOpen];
 }
@@ -123,13 +128,14 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
 - (void)dialogDidCancel:(DoorbellDialog*)dialog
 {
-    [dialog removeFromSuperview];
+    //[dialog removeFromSuperview];
+    [self.doorbellVC dismissViewControllerAnimated:YES completion:nil];
     self.block(nil, YES);
 }
 
 - (void)dialogDidSend:(DoorbellDialog*)dialog
 {
-    self.dialog.sending = YES;
+    self.doorbellVC.sending = YES;
     [self sendSubmit:dialog.bodyText email:dialog.email];
 //    [dialog removeFromSuperview];
 //    self.block(nil, YES);
@@ -307,7 +313,8 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
             break;
 
         default:
-            [self.dialog removeFromSuperview];
+            [self.doorbellVC dismissViewControllerAnimated:YES completion:nil];
+            //[self.dialog removeFromSuperview];
             self.block([NSError errorWithDomain:@"doorbell.io" code:3 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"%d: HTTP unexpected\n%@", (int)response.statusCode, content]}] , YES);
             break;
     }

@@ -16,3 +16,4 @@ FOUNDATION_EXPORT const unsigned char DoorbelliOSVersionString[];
 
 #import "Doorbell.h"
 #import "DoorbellDialog.h"
+#import "DoorbellViewController.h"
