@@ -1,4 +1,4 @@
-# Doorbell iOS SDK
+# Doorbell iOS SDK [![Status](https://travis-ci.org/doorbell/ios-sdk.svg?branch=master)](https://travis-ci.org/doorbell/ios-sdk)
 
 The Doorbell iOS SDK.
 

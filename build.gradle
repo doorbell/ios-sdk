@@ -1,0 +1,31 @@
+plugins {
+    id "com.gradle.build-scan" version "1.0"                                // Gradle build receipt
+    id "org.openbakery.xcode-plugin" version "0.13.1"			    // Xcode plugin
+    id "com.github.kt3k.coveralls" version "2.6.3"                          // Code coverage
+    id "com.github.ben-manes.versions" version "0.12.0"                     // Check for plugin updates
+    id "build-dashboard"
+}
+
+apply from: rootProject.file("gradle/buildScan.gradle")
+
+xcodebuild {
+    target = "DoorbelliOS"
+    scheme = "DoorbelliOS"
+
+    configuration = "Debug"
+
+    destination {
+        platform = "iOS Simulator"
+        name = "iPhone 6s"
+        os = "9.0"
+    }
+
+    coverage {
+        outputFormat = "xml"
+        exclude = '.*h$|.*UnitTests.*m$'
+    }
+}
+
+coveralls {
+    coberturaReportPath = "./build/coverage/cobertura.xml"
+}
