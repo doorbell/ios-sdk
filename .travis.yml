@@ -1,0 +1,24 @@
+language: objective-c
+
+osx_image: xcode7.3
+
+script:
+ - ./gradlew clean assemble -Dscan --configure-on-demand --daemon --parallel --stacktrace
+
+after_script:
+ - ./gradlew simulatorKill
+
+notifications:
+  email: false
+
+sudo: false
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.gradle
+
