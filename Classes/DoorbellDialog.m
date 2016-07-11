@@ -33,8 +33,7 @@ NSString * const DoorbellSite = @"http://doorbell.io";
         self.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin;
         CGRect boxFrame;
         boxFrame.size = CGSizeMake(300, 255);
-        boxFrame.origin.x = (frame.size.width/2) - boxFrame.size.width/2;
-        boxFrame.origin.y = (frame.size.height - boxFrame.size.height) / 2;
+        boxFrame = [self calculateNewBoxFrame:boxFrame];
         _boxView = [[UIView alloc] initWithFrame:boxFrame];
         _boxView.backgroundColor = [UIColor whiteColor];
         _boxView.layer.masksToBounds = NO;
@@ -181,6 +180,13 @@ NSString * const DoorbellSite = @"http://doorbell.io";
     [self layoutSubviews];
 }
 
+-(void)setVerticleOffset:(CGFloat)verticleOffset
+{
+    _verticleOffset = verticleOffset;
+    
+    _boxView.frame = [self calculateNewBoxFrame:_boxView.frame];
+}
+
 - (UILabel*)sendingLabel
 {
     if (!_sendingLabel) {
@@ -222,6 +228,14 @@ NSString * const DoorbellSite = @"http://doorbell.io";
     // Drawing code
 }
 */
+
+-(CGRect)calculateNewBoxFrame:(CGRect)boxFrame
+{
+    boxFrame.origin.x = (self.frame.size.width/2) - boxFrame.size.width/2;
+    boxFrame.origin.y = ((self.frame.size.height - boxFrame.size.height) / 2) + _verticleOffset;
+    
+    return boxFrame;
+}
 
 - (void)layoutSubviews
 {

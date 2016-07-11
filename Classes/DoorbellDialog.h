@@ -7,6 +7,7 @@
 @property (assign, nonatomic)   BOOL showEmail;
 @property (assign, nonatomic)   BOOL showPoweredBy;
 @property (assign, nonatomic)   BOOL sending;
+@property (assign, nonatomic)   CGFloat verticleOffset;
 
 @property (strong, nonatomic) id delegate;
 

@@ -12,6 +12,8 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 @property (strong, nonatomic)   NSString *name;
 @property (assign, nonatomic)   BOOL showEmail;
 @property (assign, nonatomic)   BOOL showPoweredBy;
+@property (assign, nonatomic)   CGFloat verticleOffset;
+@property (assign, nonatomic)   NSInteger viewTag;
 
 - (id)initWithApiKey:(NSString *)apiKey appId:(NSString *)appID;
 

@@ -78,6 +78,8 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     self.dialog.showEmail = self.showEmail;
     self.dialog.email = self.email;
     self.dialog.showPoweredBy = self.showPoweredBy;
+    self.dialog.tag = self.viewTag;
+    self.dialog.verticleOffset = self.verticleOffset;
     [vc.view addSubview:self.dialog];
 
     //Open - Request sent when the form is displayed to the user.
@@ -93,6 +95,8 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     self.dialog.showEmail = self.showEmail;
     self.dialog.email = self.email;
     self.dialog.showPoweredBy = self.showPoweredBy;
+    self.dialog.tag = self.viewTag;
+    self.dialog.verticleOffset = self.verticleOffset;
     [currentWindow addSubview:self.dialog];
 }
 
@@ -215,15 +219,27 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:request
                                                                 fromData:data
                                                        completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                                                                if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-                                                                    NSHTTPURLResponse *httpResp = (id)response;
-                                                                    NSString *content = [NSString stringWithUTF8String:data.bytes];
-                                                                    NSLog(@"%d:%@", (int)httpResp.statusCode, content);
-                                                                    dispatch_async(dispatch_get_main_queue(), ^{
-                                                                        [self manageSubmitResponse:httpResp content:content];
-                                                                    });
-                                                                }
-                                                            }];
+                                                           if (error != nil) {
+                                                               dispatch_async(dispatch_get_main_queue(), ^{
+                                                                   [self.dialog removeFromSuperview];
+                                                                   self.block(error , YES);
+                                                               });
+                                                           } else {
+                                                               if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+                                                                   NSHTTPURLResponse *httpResp = (id)response;
+                                                                   NSString *content = [NSString stringWithUTF8String:data.bytes];
+                                                                   NSLog(@"%d:%@", (int)httpResp.statusCode, content);
+                                                                   dispatch_async(dispatch_get_main_queue(), ^{
+                                                                       [self manageSubmitResponse:httpResp content:content];
+                                                                   });
+                                                               } else {
+                                                                   dispatch_async(dispatch_get_main_queue(), ^{
+                                                                       [self.dialog removeFromSuperview];
+                                                                       self.block([NSError errorWithDomain:@"doorbell.io" code:4 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Unexpected non HTTP Response."]}] , YES);
+                                                                   });
+                                                               }
+                                                           }
+                                                       }];
     [uploadTask resume];
 }
 
