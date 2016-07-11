@@ -323,7 +323,7 @@ NSString * const DoorbellSite = @"http://doorbell.io";
     _emailField.layer.borderColor = brandColor.CGColor;
     _emailField.layer.borderWidth = 1.0;
     _emailField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-
+    _emailField.autocorrectionType = UITextAutocorrectionTypeNo;
 
     UIBarButtonItem *emailDoneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil)
                                                                        style:UIBarButtonItemStyleDone target:_emailField action:@selector(resignFirstResponder)];
