@@ -298,7 +298,7 @@ NSString * const DoorbellSite = @"http://doorbell.io";
     [_boxView addSubview:_bodyView];
 
     _bodyPlaceHolderLabel = [[UILabel alloc] initWithFrame:CGRectMake(8.0f, 10.0f, 260.0f, 20.0f)];
-    _bodyPlaceHolderLabel.text = NSLocalizedString(@"What's on your mind", nil);
+    _bodyPlaceHolderLabel.text = NSLocalizedString(@"What's on your mind?", nil);
     _bodyPlaceHolderLabel.font = _bodyView.font;
     _bodyPlaceHolderLabel.textColor = [UIColor lightGrayColor];
     _bodyPlaceHolderLabel.userInteractionEnabled = NO;
