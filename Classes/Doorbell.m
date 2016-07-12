@@ -53,7 +53,9 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 {
     if (self.appID.length == 0 || self.apiKey.length == 0) {
         NSError *error = [NSError errorWithDomain:@"doorbell.io" code:2 userInfo:@{NSLocalizedDescriptionKey: @"Doorbell. Credentials could not be founded (key, appID)."}];
-        self.block(error, YES);
+        if (self.block != nil) {
+            self.block(error, YES);
+        }
         return NO;
     }
 
@@ -120,7 +122,9 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 - (void)finish
 {
     [self.dialog removeFromSuperview];
-    self.block(nil, NO);
+    if (self.block != nil) {
+        self.block(nil, NO);
+    }
 }
 
 #pragma mark - Dialog delegate
@@ -128,7 +132,9 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 - (void)dialogDidCancel:(DoorbellDialog*)dialog
 {
     [dialog removeFromSuperview];
-    self.block(nil, YES);
+    if (self.block != nil) {
+        self.block(nil, YES);
+    }
 }
 
 - (void)dialogDidSend:(DoorbellDialog*)dialog
@@ -219,27 +225,31 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:request
                                                                 fromData:data
                                                        completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                                                           if (error != nil) {
-                                                               dispatch_async(dispatch_get_main_queue(), ^{
-                                                                   [self.dialog removeFromSuperview];
-                                                                   self.block(error , YES);
-                                                               });
-                                                           } else {
-                                                               if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-                                                                   NSHTTPURLResponse *httpResp = (id)response;
-                                                                   NSString *content = [NSString stringWithUTF8String:data.bytes];
-                                                                   NSLog(@"%d:%@", (int)httpResp.statusCode, content);
-                                                                   dispatch_async(dispatch_get_main_queue(), ^{
-                                                                       [self manageSubmitResponse:httpResp content:content];
-                                                                   });
-                                                               } else {
-                                                                   dispatch_async(dispatch_get_main_queue(), ^{
-                                                                       [self.dialog removeFromSuperview];
-                                                                       self.block([NSError errorWithDomain:@"doorbell.io" code:4 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Unexpected non HTTP Response."]}] , YES);
-                                                                   });
-                                                               }
-                                                           }
-                                                       }];
+                                                            if (error != nil) {
+                                                                dispatch_async(dispatch_get_main_queue(), ^{
+                                                                    [self.dialog removeFromSuperview];
+                                                                    if (self.block != nil) {
+                                                                        self.block(error , YES);
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+                                                                    NSHTTPURLResponse *httpResp = (id)response;
+                                                                    NSString *content = [NSString stringWithUTF8String:data.bytes];
+                                                                    NSLog(@"%d:%@", (int)httpResp.statusCode, content);
+                                                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                                                        [self manageSubmitResponse:httpResp content:content];
+                                                                    });
+                                                                } else {
+                                                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                                                        [self.dialog removeFromSuperview];
+                                                                        if (self.block != nil) {
+                                                                            self.block([NSError errorWithDomain:@"doorbell.io" code:4 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Unexpected non HTTP Response."]}] , YES);
+                                                                        }
+                                                                    });
+                                                                }
+                                                            }
+                                                        }];
     [uploadTask resume];
 }
 
@@ -324,7 +334,9 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
         default:
             [self.dialog removeFromSuperview];
-            self.block([NSError errorWithDomain:@"doorbell.io" code:3 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"%d: HTTP unexpected\n%@", (int)response.statusCode, content]}] , YES);
+            if (self.block != nil) {
+                self.block([NSError errorWithDomain:@"doorbell.io" code:3 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"%d: HTTP unexpected\n%@", (int)response.statusCode, content]}] , YES);
+            }
             break;
     }
 }
