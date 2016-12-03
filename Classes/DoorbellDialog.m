@@ -5,7 +5,6 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 
 @interface DoorbellDialog ()
 
-@property (strong, nonatomic) UIView *boxView;
 @property (strong, nonatomic) UITextView *bodyView;
 @property (strong, nonatomic) UITextField *emailField;
 @property (strong, nonatomic) UIButton *cancelButton;
@@ -29,7 +28,7 @@ NSString * const DoorbellSite = @"http://doorbell.io";
         _showPoweredBy = YES;
         _sending = NO;
         // Initialization code
-        self.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.4];
+        self.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.3];
         self.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin;
         CGRect boxFrame;
         boxFrame.size = CGSizeMake(300, 255);
@@ -37,15 +36,13 @@ NSString * const DoorbellSite = @"http://doorbell.io";
         _boxView = [[UIView alloc] initWithFrame:boxFrame];
         _boxView.backgroundColor = [UIColor whiteColor];
         _boxView.layer.masksToBounds = NO;
-        _boxView.layer.cornerRadius = 2.0f;
+        _boxView.layer.cornerRadius = 4.0f;
         //_boxView.layer.borderColor = [UIColor blackColor].CGColor;
         //_boxView.layer.borderWidth = 1.0f;
         _boxView.layer.shadowColor = [UIColor blackColor].CGColor;
-        _boxView.layer.shadowRadius = 2.0f;
+        _boxView.layer.shadowRadius = 10.0f;
         _boxView.layer.shadowOffset = CGSizeMake(0, 1);
-        _boxView.layer.shadowOpacity = 0.7f;
-
-        [self createBoxSubviews];
+        _boxView.layer.shadowOpacity = 0.2f;
 
         [self addSubview:_boxView];
 
@@ -183,7 +180,7 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 -(void)setVerticleOffset:(CGFloat)verticleOffset
 {
     _verticleOffset = verticleOffset;
-    
+
     _boxView.frame = [self calculateNewBoxFrame:_boxView.frame];
 }
 
@@ -193,7 +190,7 @@ NSString * const DoorbellSite = @"http://doorbell.io";
         _sendingLabel = [[UILabel alloc] initWithFrame:_bodyView.frame];
         _sendingLabel.font = [UIFont boldSystemFontOfSize:18.0f];
         _sendingLabel.textAlignment = NSTextAlignmentCenter;
-        _sendingLabel.textColor =  [UIColor colorWithRed:91/255.0f green:192/255.0f blue:222/255.0f alpha:1.0f];
+        _sendingLabel.textColor =  self.primaryColor;
         _sendingLabel.text = NSLocalizedString(@"Sending ...", nil);
     }
 
@@ -221,19 +218,19 @@ NSString * const DoorbellSite = @"http://doorbell.io";
     }
 }
 /*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect
-{
-    // Drawing code
-}
-*/
+ // Only override drawRect: if you perform custom drawing.
+ // An empty implementation adversely affects performance during animation.
+ - (void)drawRect:(CGRect)rect
+ {
+ // Drawing code
+ }
+ */
 
 -(CGRect)calculateNewBoxFrame:(CGRect)boxFrame
 {
     boxFrame.origin.x = (self.frame.size.width/2) - boxFrame.size.width/2;
     boxFrame.origin.y = ((self.frame.size.height - boxFrame.size.height) / 2) + _verticleOffset;
-    
+
     return boxFrame;
 }
 
@@ -262,33 +259,41 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 
 - (void)createBoxSubviews
 {
-    UIColor *brandColor = [UIColor colorWithRed:91/255.0f green:192/255.0f blue:222/255.0f alpha:1.0f];
+    UIColor *brandColor = self.primaryColor
+    ? self.primaryColor
+    : [UIColor colorWithRed:91/255.0f green:192/255.0f blue:222/255.0f alpha:1.0f];
 
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(20.0f, 10.0f, 200.0f, 20.0f)];
     titleLabel.text = NSLocalizedString(@"Feedback", nil);
-    titleLabel.font = [UIFont boldSystemFontOfSize:18.0f];
+    titleLabel.font = self.titleFont
+    ? self.titleFont
+    : [UIFont boldSystemFontOfSize:18.0f];
+
     titleLabel.textAlignment = NSTextAlignmentLeft;
     titleLabel.textColor = brandColor;
 
     [_boxView addSubview:titleLabel];
 
-
     CALayer *line = [CALayer layer];
-    line.frame = CGRectMake(0, 35.0f, 300.0f, 2.0f);
+    line.frame = CGRectMake(0, 35.0f, 300.0f, 1.0f);
     line.backgroundColor = brandColor.CGColor;
     [_boxView.layer addSublayer:line];
 
     _bodyView = [[UITextView alloc] initWithFrame:CGRectMake(10.0f, 45.0f, 280.0f, 100)];
     _bodyView.delegate = self;
     _bodyView.textColor = [UIColor darkTextColor];
-    _bodyView.font = [UIFont systemFontOfSize:16.0f];
+    _bodyView.font = self.textFont
+    ? self.textFont
+    : [UIFont systemFontOfSize:16.0f];
+
     _bodyView.dataDetectorTypes = UIDataDetectorTypeNone;
-    _bodyView.layer.borderColor = brandColor.CGColor;
-    _bodyView.layer.borderWidth = 1.0;
+    _bodyView.layer.borderColor = [UIColor colorWithWhite:0 alpha:0.2].CGColor;
+    _bodyView.layer.borderWidth  = 1.0 / [UIScreen mainScreen].scale;
     _bodyView.keyboardAppearance = UIKeyboardAppearanceAlert;
+    _bodyView.layer.cornerRadius = 4;
 
     UIBarButtonItem *bodyDoneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil)
-                                                                    style:UIBarButtonItemStyleDone target:_bodyView action:@selector(resignFirstResponder)];
+                                                                       style:UIBarButtonItemStyleDone target:_bodyView action:@selector(resignFirstResponder)];
     UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
     UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
     toolbar.items = [NSArray arrayWithObjects:flexibleSpace, bodyDoneButton, nil];
@@ -309,7 +314,11 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 
     _emailField = [[UITextField alloc] initWithFrame:CGRectMake(10.0f, 155.0f, 280.0f, 30.0f)];
     _emailField.delegate = self;
-    _emailField.placeholder = NSLocalizedString(@"Your email address", nil);
+
+    NSAttributedString * emailAstring = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Your email address", nil)
+                                                                        attributes:@{NSFontAttributeName : self.textFont}];
+
+    _emailField.attributedPlaceholder = emailAstring;
     _emailField.clearButtonMode = UITextFieldViewModeWhileEditing;
     _emailField.autocapitalizationType = UITextAutocapitalizationTypeNone;
     _emailField.borderStyle = UITextBorderStyleLine;
@@ -320,13 +329,15 @@ NSString * const DoorbellSite = @"http://doorbell.io";
     _emailField.borderStyle = UITextBorderStyleNone;
     _emailField.leftView = paddingView;
     _emailField.leftViewMode = UITextFieldViewModeAlways;
-    _emailField.layer.borderColor = brandColor.CGColor;
-    _emailField.layer.borderWidth = 1.0;
+    _emailField.layer.borderColor =[UIColor colorWithWhite:0 alpha:0.2].CGColor;
+    _emailField.layer.borderWidth = 1.0 / [UIScreen mainScreen].scale;
     _emailField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     _emailField.autocorrectionType = UITextAutocorrectionTypeNo;
+    _emailField.layer.cornerRadius = 4;
+    _emailField.font = self.textFont;
 
     UIBarButtonItem *emailDoneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil)
-                                                                       style:UIBarButtonItemStyleDone target:_emailField action:@selector(resignFirstResponder)];
+                                                                        style:UIBarButtonItemStyleDone target:_emailField action:@selector(resignFirstResponder)];
     UIBarButtonItem *emailFlexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
     UIToolbar *emailToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
     emailToolbar.items = [NSArray arrayWithObjects:emailFlexibleSpace, emailDoneButton, nil];
@@ -358,10 +369,10 @@ NSString * const DoorbellSite = @"http://doorbell.io";
     _cancelButton.titleLabel.font = [UIFont boldSystemFontOfSize:14.0f];
     //_cancelButton.backgroundColor = [UIColor lightGrayColor];
     [_cancelButton setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
-    [_cancelButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [_cancelButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
     [_cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 
-    [_cancelButton setBackgroundImage:[self imageWithColor:[UIColor lightGrayColor]] forState:UIControlStateHighlighted];
+    [_cancelButton setBackgroundImage:[self imageWithColor:brandColor] forState:UIControlStateHighlighted];
     [_cancelButton addTarget:self action:@selector(cancel:) forControlEvents:UIControlEventTouchUpInside];
     //_cancelButton.layer.borderColor = [UIColor lightGrayColor].CGColor;
     //_cancelButton.layer.borderWidth = .5f;
@@ -371,10 +382,10 @@ NSString * const DoorbellSite = @"http://doorbell.io";
     _sendButton.frame = CGRectMake(150.0f, 211.0f, 150.0f, 44.0f);
     _sendButton.titleLabel.font = [UIFont boldSystemFontOfSize:14.0f];
     [_sendButton setTitle:NSLocalizedString(@"Send", nil) forState:UIControlStateNormal];
-    [_sendButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [_sendButton setTitleColor:brandColor forState:UIControlStateNormal];
     [_sendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 
-    [_sendButton setBackgroundImage:[self imageWithColor:[UIColor lightGrayColor]] forState:UIControlStateHighlighted];
+    [_sendButton setBackgroundImage:[self imageWithColor:brandColor] forState:UIControlStateHighlighted];
     [_sendButton addTarget:self action:@selector(send:) forControlEvents:UIControlEventTouchUpInside];
     //_sendButton.layer.borderColor = [UIColor lightGrayColor].CGColor;
     //_sendButton.layer.borderWidth = .5f;
@@ -400,22 +411,23 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 
 - (void)verticalOffsetBy:(NSInteger)y
 {
-    _boxView.transform = CGAffineTransformIdentity;
-    _boxView.transform = CGAffineTransformMakeTranslation(0, y);
+    [UIView animateWithDuration:0.25 animations:^{
+        _boxView.transform = CGAffineTransformIdentity;
+        _boxView.transform = CGAffineTransformMakeTranslation(0, y);
+    }];
 }
 
 #pragma mark - UITextView Delegate
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {
-    [self verticalOffsetBy:-80];
-
+    [self verticalOffsetBy:-90 - _verticleOffset];
     return YES;
 }
 
 -(void)textViewDidEndEditing:(UITextField *)textField
 {
-//    [self verticalOffsetBy:0];
+    [self verticalOffsetBy:0];
 }
 
 - (void)textViewDidChange:(UITextView *)textView
@@ -432,13 +444,13 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
 {
-    [self verticalOffsetBy:-150];
+    [self verticalOffsetBy: -150 - _verticleOffset];
     return YES;
 }
 
 -(void)textFieldDidEndEditing:(UITextField *)textField
 {
-//    [self verticalOffsetBy:0];
+    [self verticalOffsetBy:0];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField

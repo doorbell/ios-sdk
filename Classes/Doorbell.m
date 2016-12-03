@@ -15,6 +15,9 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 @end
 
 @implementation Doorbell
+{
+    BOOL _animated;
+}
 
 - (id)initWithApiKey:(NSString *)apiKey appId:(NSString *)appID
 {
@@ -33,9 +36,9 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
         //sessionConfig.allowsCellularAccess = NO;
         [sessionConfig setHTTPAdditionalHeaders:@{@"Content-Type": @"application/json",
-                                                   @"Accept": @"application/json",
-                                                   @"User-Agent": UserAgent
-                                                   }];
+                                                  @"Accept": @"application/json",
+                                                  @"User-Agent": UserAgent
+                                                  }];
         sessionConfig.timeoutIntervalForRequest = 30.0;
         sessionConfig.timeoutIntervalForResource = 60.0;
         sessionConfig.HTTPMaximumConnectionsPerHost = 1;
@@ -62,7 +65,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     return YES;
 }
 
-- (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion
+- (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion animated:(BOOL) animated
 {
     if (![self checkCredentials]) {
         return;
@@ -74,15 +77,31 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         return;
     }
 
+    _animated = animated;
+
     self.block = completion;
     self.dialog = [[DoorbellDialog alloc] initWithViewController:vc];
+    self.dialog.primaryColor = self.primaryColor;
+    self.dialog.titleFont = self.titleFont;
+    self.dialog.textFont = self.textFont;
+    [self.dialog createBoxSubviews]; // init UI
     self.dialog.delegate = self;
     self.dialog.showEmail = self.showEmail;
     self.dialog.email = self.email;
     self.dialog.showPoweredBy = self.showPoweredBy;
     self.dialog.tag = self.viewTag;
     self.dialog.verticleOffset = self.verticleOffset;
+
+    self.dialog.alpha = 0;
+    self.dialog.boxView.transform = CGAffineTransformMakeTranslation(0, -20);
+
     [vc.view addSubview:self.dialog];
+
+    float duration = animated ? 0.3 : 0;
+    [UIView animateWithDuration:duration animations:^{
+        self.dialog.alpha = 1;
+        self.dialog.boxView.transform = CGAffineTransformIdentity;
+    }];
 
     //Open - Request sent when the form is displayed to the user.
     [self sendOpen];
@@ -121,28 +140,40 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
 - (void)finish
 {
-    [self.dialog removeFromSuperview];
-    if (self.block != nil) {
-        self.block(nil, NO);
-    }
+    float duration = _animated ? 0.3 : 0;
+    [UIView animateWithDuration:duration animations:^{
+        self.dialog.alpha = 0;
+        self.dialog.boxView.transform = CGAffineTransformMakeTranslation(0, -20);
+    } completion:^(BOOL finished) {
+        [self.dialog removeFromSuperview];
+        if (self.block != nil) {
+            self.block(nil, NO);
+        }
+    }];
 }
 
 #pragma mark - Dialog delegate
 
 - (void)dialogDidCancel:(DoorbellDialog*)dialog
 {
-    [dialog removeFromSuperview];
-    if (self.block != nil) {
-        self.block(nil, YES);
-    }
+    float duration = _animated ? 0.3 : 0;
+    [UIView animateWithDuration:duration animations:^{
+        self.dialog.alpha = 0;
+        self.dialog.boxView.transform = CGAffineTransformMakeTranslation(0, -20);
+    } completion:^(BOOL finished) {
+        [self.dialog removeFromSuperview];
+        if (self.block != nil) {
+            self.block(nil, NO);
+        }
+    }];
 }
 
 - (void)dialogDidSend:(DoorbellDialog*)dialog
 {
     self.dialog.sending = YES;
     [self sendSubmit:dialog.bodyText email:dialog.email];
-//    [dialog removeFromSuperview];
-//    self.block(nil, YES);
+    //    [dialog removeFromSuperview];
+    //    self.block(nil, YES);
 }
 
 #pragma mark - Endpoints
@@ -225,31 +256,31 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:request
                                                                 fromData:data
                                                        completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                                                            if (error != nil) {
-                                                                dispatch_async(dispatch_get_main_queue(), ^{
-                                                                    [self.dialog removeFromSuperview];
-                                                                    if (self.block != nil) {
-                                                                        self.block(error , YES);
-                                                                    }
-                                                                });
-                                                            } else {
-                                                                if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-                                                                    NSHTTPURLResponse *httpResp = (id)response;
-                                                                    NSString *content = [NSString stringWithUTF8String:data.bytes];
-                                                                    NSLog(@"%d:%@", (int)httpResp.statusCode, content);
-                                                                    dispatch_async(dispatch_get_main_queue(), ^{
-                                                                        [self manageSubmitResponse:httpResp content:content];
-                                                                    });
-                                                                } else {
-                                                                    dispatch_async(dispatch_get_main_queue(), ^{
-                                                                        [self.dialog removeFromSuperview];
-                                                                        if (self.block != nil) {
-                                                                            self.block([NSError errorWithDomain:@"doorbell.io" code:4 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Unexpected non HTTP Response."]}] , YES);
-                                                                        }
-                                                                    });
-                                                                }
-                                                            }
-                                                        }];
+                                                           if (error != nil) {
+                                                               dispatch_async(dispatch_get_main_queue(), ^{
+                                                                   [self.dialog removeFromSuperview];
+                                                                   if (self.block != nil) {
+                                                                       self.block(error , YES);
+                                                                   }
+                                                               });
+                                                           } else {
+                                                               if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+                                                                   NSHTTPURLResponse *httpResp = (id)response;
+                                                                   NSString *content = [NSString stringWithUTF8String:data.bytes];
+                                                                   NSLog(@"%d:%@", (int)httpResp.statusCode, content);
+                                                                   dispatch_async(dispatch_get_main_queue(), ^{
+                                                                       [self manageSubmitResponse:httpResp content:content];
+                                                                   });
+                                                               } else {
+                                                                   dispatch_async(dispatch_get_main_queue(), ^{
+                                                                       [self.dialog removeFromSuperview];
+                                                                       if (self.block != nil) {
+                                                                           self.block([NSError errorWithDomain:@"doorbell.io" code:4 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Unexpected non HTTP Response."]}] , YES);
+                                                                       }
+                                                                   });
+                                                               }
+                                                           }
+                                                       }];
     [uploadTask resume];
 }
 
@@ -277,8 +308,8 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
                                                                                                                                error:&error];
                                                                     if (attachmentIds) {
                                                                         NSData *jsonData = [weakSelf createSubmitDataWithMessage:message
-                                                                                                                   WithEmail:email
-                                                                                                           WithAttachmentIds:attachmentIds];
+                                                                                                                       WithEmail:email
+                                                                                                               WithAttachmentIds:attachmentIds];
 
                                                                         NSMutableURLRequest *submitRequest = [weakSelf createRequestWithType:@"submit"];
                                                                         [weakSelf sendUploadRequest:submitRequest WithData:jsonData];
@@ -293,8 +324,8 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     [uploadTask resume];
 }
 
-  // Accepts an array of Dictionaries
-  // @{@"data": NSDataOfImage, @"name": nameOfImage}
+// Accepts an array of Dictionaries
+// @{@"data": NSDataOfImage, @"name": nameOfImage}
 - (NSData *)createImageUploadBodyData {
     NSMutableData *body = [NSMutableData data];
     for (NSDictionary *image in self.images) {
