@@ -43,6 +43,7 @@ NSString * const DoorbellSite = @"http://doorbell.io";
         _boxView.layer.shadowRadius = 10.0f;
         _boxView.layer.shadowOffset = CGSizeMake(0, 1);
         _boxView.layer.shadowOpacity = 0.2f;
+        _boxView.clipsToBounds = YES;
 
         [self addSubview:_boxView];
 
