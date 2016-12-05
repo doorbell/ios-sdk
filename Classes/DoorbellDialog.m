@@ -365,15 +365,16 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 
     [_boxView addSubview:_poweredBy];
 
+    UIColor * cancelColor = [UIColor colorWithRed:0.95 green:0.2 blue:0.2 alpha:1];
     _cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _cancelButton.frame = CGRectMake(0.0f, 211.0f, 150.0f, 44.0f);
     _cancelButton.titleLabel.font = [UIFont boldSystemFontOfSize:14.0f];
     //_cancelButton.backgroundColor = [UIColor lightGrayColor];
     [_cancelButton setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
-    [_cancelButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+    [_cancelButton setTitleColor:cancelColor forState:UIControlStateNormal];
     [_cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 
-    [_cancelButton setBackgroundImage:[self imageWithColor:brandColor] forState:UIControlStateHighlighted];
+    [_cancelButton setBackgroundImage:[self imageWithColor:cancelColor] forState:UIControlStateHighlighted];
     [_cancelButton addTarget:self action:@selector(cancel:) forControlEvents:UIControlEventTouchUpInside];
     //_cancelButton.layer.borderColor = [UIColor lightGrayColor].CGColor;
     //_cancelButton.layer.borderWidth = .5f;
