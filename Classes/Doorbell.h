@@ -6,6 +6,10 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 
 @interface Doorbell : NSObject
 
+@property (strong, nonatomic)   UIColor * primaryColor;
+@property (strong, nonatomic)   UIFont * titleFont;
+@property (strong, nonatomic)   UIFont * textFont;
+
 @property (strong, nonatomic)   NSString *apiKey;
 @property (strong, nonatomic)   NSString *appID;
 @property (strong, nonatomic)   NSString *email;
@@ -19,7 +23,7 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 
 + (Doorbell*)doorbellWithApiKey:(NSString *)apiKey appId:(NSString *)appID;
 
-- (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion;
+- (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion animated:(BOOL) animated;
 
 - (void)addPropertyWithName:(NSString*)name AndValue:(id)value;
 
