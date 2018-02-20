@@ -14,6 +14,7 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 @property (strong, nonatomic)   NSString *appID;
 @property (strong, nonatomic)   NSString *email;
 @property (strong, nonatomic)   NSString *name;
+@property (strong, nonatomic)   NSString *language;
 @property (assign, nonatomic)   BOOL showEmail;
 @property (assign, nonatomic)   BOOL showPoweredBy;
 @property (assign, nonatomic)   CGFloat verticleOffset;

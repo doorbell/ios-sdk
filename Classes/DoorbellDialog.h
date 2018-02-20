@@ -17,10 +17,7 @@
 @property (strong, nonatomic) id delegate;
 
 - (id)initWithViewController:(UIViewController *)vc;
-
-- (void)highlightEmailEmpty;
-- (void)highlightEmailInvalid;
-- (void)highlightMessageEmpty;
+- (void)showMessageError:(NSString *)errorMessage;
 - (void)createBoxSubviews;
 
 @end

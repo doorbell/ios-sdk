@@ -125,11 +125,6 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 
 - (void)send:(id)sender
 {
-    if (self.bodyText.length == 0) {
-        [self highlightMessageEmpty];
-        return;
-    }
-
     if ([_delegate respondsToSelector:@selector(dialogDidSend:)]) {
         [_delegate dialogDidSend:self];
     }
@@ -144,24 +139,10 @@ NSString * const DoorbellSite = @"http://doorbell.io";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
-- (void)highlightMessageEmpty
+- (void)showMessageError:(NSString *)errorMessage
 {
-    _bodyPlaceHolderLabel.text = NSLocalizedString(@"Please add some feedback", nil);
-    _bodyPlaceHolderLabel.textColor = [UIColor redColor];
-    [_bodyView becomeFirstResponder];
-}
-
-- (void)highlightEmailEmpty
-{
-    _emailField.layer.borderColor = [UIColor redColor].CGColor;
-    _emailField.placeholder = NSLocalizedString(@"Please add an email", nil);
-    [_emailField becomeFirstResponder];
-}
-
-- (void)highlightEmailInvalid
-{
-    _emailField.layer.borderColor = [UIColor redColor].CGColor;
-    [_emailField becomeFirstResponder];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", nil) message:NSLocalizedString(errorMessage, nil) delegate:self cancelButtonTitle:NSLocalizedString(@"OK", nil) otherButtonTitles:nil, nil];
+    [alert show];
 }
 
 - (void)setShowEmail:(BOOL)showEmail
@@ -315,10 +296,12 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 
     _emailField = [[UITextField alloc] initWithFrame:CGRectMake(10.0f, 155.0f, 280.0f, 30.0f)];
     _emailField.delegate = self;
-
-    NSAttributedString * emailAstring = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Your email address", nil)
-                                                                        attributes:@{NSFontAttributeName : self.textFont}];
-
+    
+    NSMutableAttributedString * emailAstring = [[NSMutableAttributedString alloc] initWithString:NSLocalizedString(@"Your email address", nil) attributes:nil];
+    if (self.textFont != nil) {
+        [emailAstring addAttribute:NSFontAttributeName value:self.textFont range:NSMakeRange(0, emailAstring.length)];
+    }
+    
     _emailField.attributedPlaceholder = emailAstring;
     _emailField.clearButtonMode = UITextFieldViewModeWhileEditing;
     _emailField.autocapitalizationType = UITextAutocapitalizationTypeNone;

@@ -29,6 +29,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         self.appID = appID;
         self.name = @"";
         self.imageBoundary = @"FileUploadFormBoundaryForUsAll";
+        self.language = [[NSLocale preferredLanguages] firstObject];
 
         self.properties = [[NSMutableDictionary alloc] init];
         self.images = [[NSMutableArray alloc] init];
@@ -55,7 +56,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 - (BOOL)checkCredentials
 {
     if (self.appID.length == 0 || self.apiKey.length == 0) {
-        NSError *error = [NSError errorWithDomain:@"doorbell.io" code:2 userInfo:@{NSLocalizedDescriptionKey: @"Doorbell. Credentials could not be founded (key, appID)."}];
+        NSError *error = [NSError errorWithDomain:@"doorbell.io" code:2 userInfo:@{NSLocalizedDescriptionKey: @"Doorbell credentials could not be found (key, appID)."}];
         if (self.block != nil) {
             self.block(error, YES);
         }
@@ -125,16 +126,13 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
 - (void)fieldError:(NSString*)validationError
 {
-    if ([validationError hasPrefix:@"Your email address is required"]) {
-        [self.dialog highlightEmailEmpty];
-    }
-    else if ([validationError hasPrefix:@"Invalid email address"]) {
-        [self.dialog highlightEmailInvalid];
-    }
-    else {
-        [self.dialog highlightMessageEmpty];
-    }
+    [self.dialog showMessageError:validationError];
+    self.dialog.sending = NO;
+}
 
+- (void)generalError:(NSString *)errorMessage
+{
+    [self.dialog showMessageError:errorMessage];
     self.dialog.sending = NO;
 }
 
@@ -256,30 +254,23 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:request
                                                                 fromData:data
                                                        completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                                                           if (error != nil) {
-                                                               dispatch_async(dispatch_get_main_queue(), ^{
-                                                                   [self.dialog removeFromSuperview];
-                                                                   if (self.block != nil) {
-                                                                       self.block(error , YES);
-                                                                   }
-                                                               });
-                                                           } else {
-                                                               if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-                                                                   NSHTTPURLResponse *httpResp = (id)response;
-                                                                   NSString *content = [NSString stringWithUTF8String:data.bytes];
-                                                                   NSLog(@"%d:%@", (int)httpResp.statusCode, content);
-                                                                   dispatch_async(dispatch_get_main_queue(), ^{
-                                                                       [self manageSubmitResponse:httpResp content:content];
-                                                                   });
-                                                               } else {
-                                                                   dispatch_async(dispatch_get_main_queue(), ^{
-                                                                       [self.dialog removeFromSuperview];
-                                                                       if (self.block != nil) {
-                                                                           self.block([NSError errorWithDomain:@"doorbell.io" code:4 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Unexpected non HTTP Response."]}] , YES);
-                                                                       }
-                                                                   });
+                                                           dispatch_async(dispatch_get_main_queue(), ^{
+                                                               NSString *content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                                                               NSLog(@"Response data: %@", content);
+                                                               
+                                                               if ([data length] > 0 && error == nil)
+                                                               {
+                                                                   [self manageSubmitResponse:response content:content];
                                                                }
-                                                           }
+                                                               else if ([data length] == 0 && error == nil)
+                                                               {
+                                                                   [self generalError:@"No response, please try again!"];
+                                                               }
+                                                               else if (error != nil)
+                                                               {
+                                                                   [self generalError:[[NSString alloc] initWithFormat:@"Error, please try again (%@)", error] ];
+                                                               }
+                                                           });
                                                        }];
     [uploadTask resume];
 }
@@ -300,7 +291,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
                                                             completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
                                                                 if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
                                                                     NSHTTPURLResponse *httpResp = (id)response;
-                                                                    NSString *content = [NSString stringWithUTF8String:data.bytes];
+                                                                    NSString *content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
                                                                     NSLog(@"%d:%@", (int)httpResp.statusCode, content);
                                                                     NSError *error;
                                                                     NSArray *attachmentIds = [NSJSONSerialization JSONObjectWithData:data
@@ -353,22 +344,27 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     }
 }
 
-- (void)manageSubmitResponse:(NSHTTPURLResponse*)response content:(NSString*)content
+- (void)manageSubmitResponse:(NSURLResponse*)response content:(NSString*)content
 {
-    switch (response.statusCode) {
-        case 201:
-            [self finish];
-            break;
-        case 400:
-            [self fieldError:content];
-            break;
-
-        default:
-            [self.dialog removeFromSuperview];
-            if (self.block != nil) {
-                self.block([NSError errorWithDomain:@"doorbell.io" code:3 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"%d: HTTP unexpected\n%@", (int)response.statusCode, content]}] , YES);
-            }
-            break;
+    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+        NSHTTPURLResponse *httpResp = (id)response;
+        switch (httpResp.statusCode) {
+            case 201:
+                [self finish];
+                break;
+            case 400:
+                [self fieldError:content];
+                break;
+            default:
+                [self generalError:content];
+                self.block([NSError errorWithDomain:@"doorbell.io" code:3 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"%d: HTTP unexpected\n%@", (int)httpResp.statusCode, content]}] , YES);
+                break;
+        }
+        
+        return;
     }
+
+    [self generalError:content];
+    self.block([NSError errorWithDomain:@"doorbell.io" code:3 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"HTTP unexpected\n%@", content]}] , YES);
 }
 @end
