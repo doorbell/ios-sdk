@@ -397,8 +397,8 @@ NSString * const DoorbellSite = @"http://doorbell.io";
 - (void)verticalOffsetBy:(NSInteger)y
 {
     [UIView animateWithDuration:0.25 animations:^{
-        _boxView.transform = CGAffineTransformIdentity;
-        _boxView.transform = CGAffineTransformMakeTranslation(0, y);
+        self->_boxView.transform = CGAffineTransformIdentity;
+        self->_boxView.transform = CGAffineTransformMakeTranslation(0, y);
     }];
 }
 
