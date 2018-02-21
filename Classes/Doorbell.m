@@ -29,7 +29,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         self.appID = appID;
         self.name = @"";
         self.imageBoundary = @"FileUploadFormBoundaryForUsAll";
-        self.language = [[NSLocale preferredLanguages] firstObject];
+        self.language = [[[NSBundle mainBundle] preferredLocalizations] firstObject];
 
         self.properties = [[NSMutableDictionary alloc] init];
         self.images = [[NSMutableArray alloc] init];
@@ -220,6 +220,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     [submitData setValue:email forKey:@"email"];
     [submitData setValue:self.properties forKey:@"properties"];
     [submitData setValue:self.name forKey:@"name"];
+    [submitData setValue:self.language forKey:@"language"];
 
     if (attachmentIds != nil) {
         [submitData setValue:attachmentIds forKey:@"attachments"];
