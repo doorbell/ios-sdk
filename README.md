@@ -8,7 +8,7 @@ You can view the full documentation here: https://doorbell.io/docs/ios
 
 ## Installation
 
-Include Doorbell via CocoaPods: http://cocoapods.org/?q=on%3Aios%20doorbell
+Include Doorbell via CocoaPods: https://cocoapods.org/pods/Doorbell
 
 ## Usage
 
