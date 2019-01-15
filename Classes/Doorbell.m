@@ -161,7 +161,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     } completion:^(BOOL finished) {
         [self.dialog removeFromSuperview];
         if (self.block != nil) {
-            self.block(nil, NO);
+            self.block(nil, YES);
         }
     }];
 }
