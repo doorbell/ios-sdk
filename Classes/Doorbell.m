@@ -269,7 +269,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
                                                                }
                                                                else if (error != nil)
                                                                {
-                                                                   [self generalError:[[NSString alloc] initWithFormat:@"Error, please try again (%@)", error] ];
+                                                                   [self generalError:[[NSString alloc] initWithFormat:@"Error, please try again (%@)", error.localizedDescription] ];
                                                                }
                                                            });
                                                        }];
