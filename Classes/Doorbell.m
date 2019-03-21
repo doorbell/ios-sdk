@@ -12,6 +12,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 @property (strong, nonatomic)   NSMutableArray *images;
 @property (strong, nonatomic)   NSURLSession *session;
 @property (strong, nonatomic)   NSString *imageBoundary;
+@property (strong, nonatomic)   UIImage *screenshotImage;
 @end
 
 @implementation Doorbell
@@ -76,6 +77,26 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     return YES;
 }
 
+-(UIImage *)takeScreenshot
+{
+    // create graphics context with screen size
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    UIGraphicsBeginImageContext(screenRect.size);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    [[UIColor blackColor] set];
+    CGContextFillRect(ctx, screenRect);
+
+    // grab reference to our window
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+
+    // transfer content into our context
+    [window.layer renderInContext:ctx];
+    UIImage *screenshot = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return screenshot;
+}
+
 - (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion animated:(BOOL) animated
 {
     if (![self checkCredentials]) {
@@ -86,6 +107,10 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         NSError *error = [NSError errorWithDomain:@"doorbell.io" code:1 userInfo:@{NSLocalizedDescriptionKey: @"Doorbell needs a ViewController"}];
         completion(error, YES);
         return;
+    }
+
+    if (self.screenshot) {
+        self.screenshotImage = [self takeScreenshot];
     }
 
     [self addPropertyWithName:@"ViewController" AndValue:NSStringFromClass([vc class])];
@@ -234,6 +259,14 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     [submitData setValue:self.properties forKey:@"properties"];
     [submitData setValue:self.name forKey:@"name"];
     [submitData setValue:self.language forKey:@"language"];
+    
+    if (self.screenshotImage != nil) {
+        NSData *imageData = UIImagePNGRepresentation(self.screenshotImage);
+
+        NSString *screenshotDataURI = [imageData base64EncodedStringWithOptions:0];
+        
+        [submitData setValue:screenshotDataURI forKey:@"ios_screenshot"];
+    }
 
     if (attachmentIds != nil) {
         [submitData setValue:attachmentIds forKey:@"attachments"];
