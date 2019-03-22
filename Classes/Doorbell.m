@@ -17,13 +17,13 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
 @implementation Doorbell
 {
-    BOOL _animated;
 }
 
 - (id)initWithApiKey:(NSString *)apiKey appId:(NSString *)appID
 {
     self = [super init];
     if (self) {
+        _animated = NO;
         _showEmail = YES;
         _showPoweredBy = YES;
         self.apiKey = apiKey;
@@ -97,7 +97,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     return screenshot;
 }
 
-- (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion animated:(BOOL) animated
+- (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion
 {
     if (![self checkCredentials]) {
         return;
@@ -115,8 +115,6 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
     [self addPropertyWithName:@"ViewController" AndValue:NSStringFromClass([vc class])];
     
-    _animated = animated;
-
     self.block = completion;
     self.dialog = [[DoorbellDialog alloc] initWithViewController:vc];
     self.dialog.appID = self.appID;
@@ -136,7 +134,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
     [vc.view addSubview:self.dialog];
 
-    float duration = animated ? 0.3 : 0;
+    float duration = _animated ? 0.3 : 0;
     [UIView animateWithDuration:duration animations:^{
         self.dialog.alpha = 1;
         self.dialog.boxView.transform = CGAffineTransformIdentity;

@@ -18,6 +18,7 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 @property (assign, nonatomic)   BOOL screenshot;
 @property (assign, nonatomic)   BOOL showEmail;
 @property (assign, nonatomic)   BOOL showPoweredBy;
+@property (assign, nonatomic)   BOOL animated;
 @property (assign, nonatomic)   CGFloat verticleOffset;
 @property (assign, nonatomic)   NSInteger viewTag;
 
@@ -25,7 +26,7 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 
 + (Doorbell*)doorbellWithApiKey:(NSString *)apiKey appId:(NSString *)appID;
 
-- (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion animated:(BOOL) animated;
+- (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion;
 
 - (void)addPropertyWithName:(NSString*)name AndValue:(id)value;
 
