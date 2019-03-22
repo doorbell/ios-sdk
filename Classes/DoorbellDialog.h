@@ -11,6 +11,8 @@
 @property (strong, nonatomic)   NSString *email;
 @property (strong, nonatomic)   NSString *appID;
 @property (assign, nonatomic)   BOOL showEmail;
+@property (assign, nonatomic)   BOOL npsEnabled;
+@property (assign, nonatomic)   int npsValue;
 @property (assign, nonatomic)   BOOL showPoweredBy;
 @property (assign, nonatomic)   BOOL sending;
 @property (assign, nonatomic)   CGFloat verticleOffset;

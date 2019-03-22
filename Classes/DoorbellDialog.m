@@ -9,6 +9,11 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 @property (strong, nonatomic) UITextField *emailField;
 @property (strong, nonatomic) UIButton *cancelButton;
 @property (strong, nonatomic) UIButton *sendButton;
+@property (strong, nonatomic) UIView *npsContainer;
+@property (strong, nonatomic) UISlider *npsSlider;
+@property (strong, nonatomic) UIImage *npsSliderThumbImage;
+@property (strong, nonatomic) UIColor *npsSliderMinimumTrackTint;
+@property (assign, nonatomic) BOOL npsSliderThumbVisible;
 @property (strong, nonatomic) UIView *poweredBy;
 @property (strong, nonatomic) UILabel *bodyPlaceHolderLabel;
 @property (strong, nonatomic) UILabel *sendingLabel;
@@ -26,7 +31,10 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     if (self) {
         _showEmail = YES;
         _showPoweredBy = YES;
+        _npsEnabled = NO;
         _sending = NO;
+        _npsValue = -1;
+        
         // Initialization code
         self.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.3];
         self.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin;
@@ -153,6 +161,13 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     [self layoutSubviews];
 }
 
+- (void)setEnableNPS:(BOOL)npsEnabled
+{
+    _npsEnabled = npsEnabled;
+    _npsContainer.hidden = !npsEnabled;
+    [self layoutSubviews];
+}
+
 - (void)setShowPoweredBy:(BOOL)showPoweredBy
 {
     _showPoweredBy = showPoweredBy;
@@ -190,6 +205,9 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     if (_showPoweredBy) {
         _poweredBy.hidden = sending;
     }
+    if (_npsEnabled) {
+        _npsContainer.hidden = sending;
+    }
     _cancelButton.hidden = sending;
     _sendButton.hidden = sending;
 
@@ -220,14 +238,21 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 - (void)layoutSubviews
 {
     float offsetY = _bodyView.frame.origin.y + _bodyView.frame.size.height + 10.0f;
+    int padding = 10;
+    
     if (_showEmail) {
         _emailField.frame = CGRectMake(10.0f, offsetY, 280.0f, 30.0f);
-        offsetY += 40;
+        offsetY += _emailField.frame.size.height + padding;
+    }
+
+    if (_npsEnabled) {
+        _npsContainer.frame = CGRectMake(10.0f, offsetY, 280.0f, 64.0f);
+        offsetY += _npsContainer.frame.size.height + padding;
     }
 
     if (_showPoweredBy) {
         _poweredBy.frame = CGRectMake(10.0f, offsetY, 280.0f, 14.0f);
-        offsetY += 24;
+        offsetY += _poweredBy.frame.size.height + padding;
     }
 
     _cancelButton.frame = CGRectMake(0.0f, offsetY, 150.0f, 44.0f);
@@ -236,7 +261,7 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     CGRect frame = _boxView.frame;
     frame.size.height = offsetY + 44.0f;
     _boxView.frame = frame;
-
+    
     [super layoutSubviews];
 }
 
@@ -248,9 +273,7 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(20.0f, 10.0f, 200.0f, 20.0f)];
     titleLabel.text = NSLocalizedString(@"Feedback", nil);
-    titleLabel.font = self.titleFont
-    ? self.titleFont
-    : [UIFont boldSystemFontOfSize:18.0f];
+    titleLabel.font = self.titleFont ? self.titleFont : [UIFont boldSystemFontOfSize:18.0f];
 
     titleLabel.textAlignment = NSTextAlignmentLeft;
     titleLabel.textColor = brandColor;
@@ -265,9 +288,7 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     _bodyView = [[UITextView alloc] initWithFrame:CGRectMake(10.0f, 45.0f, 280.0f, 100)];
     _bodyView.delegate = self;
     _bodyView.textColor = [UIColor darkTextColor];
-    _bodyView.font = self.textFont
-    ? self.textFont
-    : [UIFont systemFontOfSize:16.0f];
+    _bodyView.font = self.textFont ? self.textFont : [UIFont systemFontOfSize:16.0f];
 
     _bodyView.dataDetectorTypes = UIDataDetectorTypeNone;
     _bodyView.layer.borderColor = [UIColor colorWithWhite:0 alpha:0.2].CGColor;
@@ -319,10 +340,9 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     _emailField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     _emailField.autocorrectionType = UITextAutocorrectionTypeNo;
     _emailField.layer.cornerRadius = 4;
-    _emailField.font = self.textFont;
+    _emailField.font = self.textFont ? self.textFont : [UIFont systemFontOfSize:14.0f];
 
-    UIBarButtonItem *emailDoneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil)
-                                                                        style:UIBarButtonItemStyleDone target:_emailField action:@selector(resignFirstResponder)];
+    UIBarButtonItem *emailDoneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil) style:UIBarButtonItemStyleDone target:_emailField action:@selector(resignFirstResponder)];
     UIBarButtonItem *emailFlexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
     UIToolbar *emailToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
     emailToolbar.items = [NSArray arrayWithObjects:emailFlexibleSpace, emailDoneButton, nil];
@@ -332,8 +352,51 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 
     [_boxView addSubview:_emailField];
 
-    _poweredBy = [[UIView alloc] initWithFrame:CGRectMake(10.0f, 193.0f, 280.0f, 14.0f)];
+    _npsContainer = [[UIView alloc] initWithFrame:CGRectMake(10.0f, 0, 280.0f, 64.0f)];
+    [_boxView addSubview:_npsContainer];
+    
+    UILabel *npsLabel = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 280.0f, 16.0f)];
+    npsLabel.text = NSLocalizedString(@"How likely are you to recommend us to a friend?", nil);
+    npsLabel.font = self.textFont ? self.textFont : [UIFont systemFontOfSize:12.0f];
+    [_npsContainer addSubview:npsLabel];
 
+    _npsSlider = [[UISlider alloc] initWithFrame:CGRectMake(0.0f, 24.0f, 280.0f, 24.0f)];
+    _npsSlider.minimumValue = 0;
+    _npsSlider.maximumValue = 10;
+    _npsSlider.value = 0;
+    _npsSlider.continuous = NO;
+    
+    _npsSlider.hidden = !_npsEnabled;
+    
+    // Back them up, so we can reset it when the value starts changing
+    _npsSliderThumbImage = _npsSlider.currentThumbImage;
+    _npsSliderMinimumTrackTint = _npsSlider.minimumTrackTintColor;
+    
+    [_npsSlider setThumbImage:[[UIImage alloc] init] forState:UIControlStateNormal];
+    [_npsSlider setMinimumTrackTintColor:_npsSlider.maximumTrackTintColor];
+    [_npsSlider addTarget:self action:@selector(npsSliderValueChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(npsSliderTapAndSlide:)];
+    longPress.minimumPressDuration = 0;
+    [_npsSlider addGestureRecognizer:longPress];
+    
+    _npsSlider.backgroundColor = UIColor.clearColor;
+    
+    [_npsContainer addSubview:_npsSlider];
+
+    UILabel *npsRatingBad = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, 54.0f, 140.0f, 16.0f)];
+    npsRatingBad.text = NSLocalizedString(@"0", nil);
+    npsRatingBad.font = self.textFont ? self.textFont : [UIFont systemFontOfSize:12.0f];
+    [_npsContainer addSubview:npsRatingBad];
+    
+    UILabel *npsRatingGood = [[UILabel alloc] initWithFrame:CGRectMake(140.0f, 54.0f, 140.0f, 16.0f)];
+    npsRatingGood.text = NSLocalizedString(@"10", nil);
+    npsRatingGood.font = self.textFont ? self.textFont : [UIFont systemFontOfSize:12.0f];
+    npsRatingGood.textAlignment = NSTextAlignmentRight;
+    [_npsContainer addSubview:npsRatingGood];
+    
+    _poweredBy = [[UIView alloc] initWithFrame:CGRectMake(10.0f, 193.0f, 280.0f, 14.0f)];
+    
     UILabel *powerByLabel = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 80.0f, 14.0f)];
     powerByLabel.text = NSLocalizedString(@"Powered by", nil);
     powerByLabel.font = [UIFont boldSystemFontOfSize:12.0f];
@@ -382,6 +445,76 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 
     [_boxView addSubview:_cancelButton];
     [_boxView addSubview:_sendButton];
+}
+
+- (void) showNPSSliderThumb
+{
+    if (_npsSliderThumbVisible) {
+        // Already visible, don't do anything
+        return;
+    }
+    
+    [_npsSlider setMinimumTrackTintColor:_npsSliderMinimumTrackTint];
+    [_npsSlider setThumbImage:_npsSliderThumbImage forState:UIControlStateNormal];
+    
+    _npsSliderThumbVisible = true;
+}
+
+- (void) npsSliderValueChanged:(UISlider *)slider
+{
+    if (!_npsSliderThumbVisible) {
+        [self showNPSSliderThumb];
+    }
+
+//    NSLog(@"Slider value updating: %f, rounded: %d", slider.value, (int)roundf(slider.value));
+    
+    float roundedValue = roundf(slider.value);
+    _npsValue = (int)roundedValue;
+
+    // Animate the "snap" to the right value
+    [UIView animateWithDuration:0.1 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        [slider setValue:roundedValue animated:YES];
+    } completion:nil];
+}
+
+// Inspiration from here: https://stackoverflow.com/a/22982080/349012
+- (void)npsSliderTapAndSlide:(UILongPressGestureRecognizer*)gesture
+{
+    CGPoint pt = [gesture locationInView: _npsSlider];
+    CGFloat thumbWidth = [self thumbRect].size.width;
+    CGFloat value;
+    
+    if(pt.x <= [self thumbRect].size.width/2.0)
+        value = _npsSlider.minimumValue;
+    else if(pt.x >= _npsSlider.bounds.size.width - thumbWidth/2.0)
+        value = _npsSlider.maximumValue;
+    else {
+        CGFloat percentage = (pt.x - thumbWidth/2.0)/(_npsSlider.bounds.size.width - thumbWidth);
+        CGFloat delta = percentage * (_npsSlider.maximumValue - _npsSlider.minimumValue);
+        value = _npsSlider.minimumValue + delta;
+    }
+    
+    // To trigger showing the thumb
+    if (!_npsSliderThumbVisible) {
+        [self showNPSSliderThumb];
+    }
+
+    [_npsSlider setValue:value];
+    
+    // If we want it behaving like continuous=YES
+//    if(gesture.state == UIGestureRecognizerStateChanged) {
+//        [_npsSlider sendActionsForControlEvents:UIControlEventValueChanged];
+//    }
+
+    // If we want it behaving like continuous=NO
+    if(gesture.state == UIGestureRecognizerStateEnded) {
+        [_npsSlider sendActionsForControlEvents:UIControlEventValueChanged];
+    }
+}
+
+- (CGRect)thumbRect {
+    CGRect trackRect = [_npsSlider trackRectForBounds:_npsSlider.bounds];
+    return [_npsSlider thumbRectForBounds:_npsSlider.bounds trackRect:trackRect value:_npsSlider.value];
 }
 
 - (UIImage *)imageWithColor:(UIColor *)color

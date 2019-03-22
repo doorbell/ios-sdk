@@ -26,6 +26,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         _animated = NO;
         _showEmail = YES;
         _showPoweredBy = YES;
+        _nps = NO;
         self.apiKey = apiKey;
         self.appID = appID;
         self.name = @"";
@@ -122,6 +123,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     self.dialog.titleFont = self.titleFont;
     self.dialog.textFont = self.textFont;
     self.dialog.showEmail = self.showEmail;
+    self.dialog.npsEnabled = self.nps;
     self.dialog.showPoweredBy = self.showPoweredBy;
     [self.dialog createBoxSubviews]; // init UI
     self.dialog.delegate = self;
@@ -152,6 +154,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     self.dialog.appID = self.appID;
     self.dialog.delegate = self;
     self.dialog.showEmail = self.showEmail;
+    self.dialog.npsEnabled = self.nps;
     self.dialog.email = self.email;
     self.dialog.showPoweredBy = self.showPoweredBy;
     self.dialog.tag = self.viewTag;
@@ -258,6 +261,11 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     [submitData setValue:self.properties forKey:@"properties"];
     [submitData setValue:self.name forKey:@"name"];
     [submitData setValue:self.language forKey:@"language"];
+    
+    if (self.nps && self.dialog.npsValue >= 0) {
+        NSNumber *npsValue = [NSNumber numberWithInt:self.dialog.npsValue];
+        [submitData setValue:npsValue forKey:@"nps"];
+    }
     
     if (self.screenshotImage != nil) {
         NSData *imageData = UIImagePNGRepresentation(self.screenshotImage);
