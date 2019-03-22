@@ -123,11 +123,11 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     self.dialog.primaryColor = self.primaryColor;
     self.dialog.titleFont = self.titleFont;
     self.dialog.textFont = self.textFont;
+    self.dialog.showEmail = self.showEmail;
+    self.dialog.showPoweredBy = self.showPoweredBy;
     [self.dialog createBoxSubviews]; // init UI
     self.dialog.delegate = self;
-    self.dialog.showEmail = self.showEmail;
     self.dialog.email = self.email;
-    self.dialog.showPoweredBy = self.showPoweredBy;
     self.dialog.tag = self.viewTag;
     self.dialog.verticleOffset = self.verticleOffset;
 
@@ -151,6 +151,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     self.block = completion;
     UIWindow *currentWindow = [UIApplication sharedApplication].keyWindow;
     self.dialog = [[DoorbellDialog alloc] initWithFrame:currentWindow.frame];
+    self.dialog.appID = self.appID;
     self.dialog.delegate = self;
     self.dialog.showEmail = self.showEmail;
     self.dialog.email = self.email;

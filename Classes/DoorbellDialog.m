@@ -46,8 +46,8 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
         _boxView.clipsToBounds = YES;
 
         [self addSubview:_boxView];
-
     }
+
     return self;
 }
 
@@ -211,7 +211,7 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 
 -(CGRect)calculateNewBoxFrame:(CGRect)boxFrame
 {
-    boxFrame.origin.x = (self.frame.size.width/2) - boxFrame.size.width/2;
+    boxFrame.origin.x = (self.frame.size.width - boxFrame.size.width) / 2;
     boxFrame.origin.y = ((self.frame.size.height - boxFrame.size.height) / 2) + _verticleOffset;
 
     return boxFrame;
@@ -314,7 +314,7 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     _emailField.borderStyle = UITextBorderStyleNone;
     _emailField.leftView = paddingView;
     _emailField.leftViewMode = UITextFieldViewModeAlways;
-    _emailField.layer.borderColor =[UIColor colorWithWhite:0 alpha:0.2].CGColor;
+    _emailField.layer.borderColor = [UIColor colorWithWhite:0 alpha:0.2].CGColor;
     _emailField.layer.borderWidth = 1.0 / [UIScreen mainScreen].scale;
     _emailField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     _emailField.autocorrectionType = UITextAutocorrectionTypeNo;
@@ -327,6 +327,8 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     UIToolbar *emailToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
     emailToolbar.items = [NSArray arrayWithObjects:emailFlexibleSpace, emailDoneButton, nil];
     _emailField.inputAccessoryView = emailToolbar;
+
+    _emailField.hidden = !_showEmail;
 
     [_boxView addSubview:_emailField];
 
@@ -347,6 +349,8 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     [poweredByButton addTarget:self action:@selector(goToDoorbell:) forControlEvents:UIControlEventTouchUpInside];
     [_poweredBy addSubview:poweredByButton];
 
+    _poweredBy.hidden = !_showPoweredBy;
+    
     [_boxView addSubview:_poweredBy];
 
     UIColor * cancelColor = [UIColor colorWithRed:0.95 green:0.2 blue:0.2 alpha:1];
