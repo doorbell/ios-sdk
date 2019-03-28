@@ -352,6 +352,7 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     [_boxView addSubview:_emailField];
 
     _npsContainer = [[UIView alloc] initWithFrame:CGRectMake(10.0f, 0, 280.0f, 64.0f)];
+    _npsContainer.hidden = !_npsEnabled;
     [_boxView addSubview:_npsContainer];
     
     UILabel *npsLabel = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 280.0f, 16.0f)];
@@ -364,8 +365,6 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     _npsSlider.maximumValue = 10;
     _npsSlider.value = 0;
     _npsSlider.continuous = NO;
-    
-    _npsSlider.hidden = !_npsEnabled;
     
     // Back them up, so we can reset it when the value starts changing
     _npsSliderThumbImage = _npsSlider.currentThumbImage;
