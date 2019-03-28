@@ -445,6 +445,9 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 
     [_boxView addSubview:_cancelButton];
     [_boxView addSubview:_sendButton];
+    
+    [self layoutSubviews];
+    _boxView.frame = [self calculateNewBoxFrame:_boxView.frame];
 }
 
 - (void) showNPSSliderThumb
