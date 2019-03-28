@@ -150,8 +150,13 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 
 - (void)showMessageError:(NSString *)errorMessage
 {
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", nil) message:NSLocalizedString(errorMessage, nil) delegate:self cancelButtonTitle:NSLocalizedString(@"OK", nil) otherButtonTitles:nil, nil];
-    [alert show];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Error", nil) message: NSLocalizedString(errorMessage, nil) preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction* ok = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
+
+    [alert addAction: ok];
+    
+    [self.parentViewController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)setShowEmail:(BOOL)showEmail
