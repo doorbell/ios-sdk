@@ -296,8 +296,7 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     _bodyView.keyboardAppearance = UIKeyboardAppearanceAlert;
     _bodyView.layer.cornerRadius = 4;
 
-    UIBarButtonItem *bodyDoneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil)
-                                                                       style:UIBarButtonItemStyleDone target:_bodyView action:@selector(resignFirstResponder)];
+    UIBarButtonItem *bodyDoneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil) style:UIBarButtonItemStyleDone target:_bodyView action:@selector(resignFirstResponder)];
     UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
     UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
     toolbar.items = [NSArray arrayWithObjects:flexibleSpace, bodyDoneButton, nil];
