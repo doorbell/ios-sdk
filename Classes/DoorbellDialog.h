@@ -2,11 +2,11 @@
 
 @interface DoorbellDialog : UIView <UITextViewDelegate, UITextFieldDelegate>
 
-@property (strong, nonatomic)   UIColor * primaryColor;
-@property (strong, nonatomic)   UIFont * titleFont;
-@property (strong, nonatomic)   UIFont * textFont;
+@property (strong, nonatomic)   UIColor *primaryColor;
+@property (strong, nonatomic)   UIFont *titleFont;
+@property (strong, nonatomic)   UIFont *textFont;
 
-@property (strong, nonatomic) UIView * boxView;
+@property (strong, nonatomic)   UIView *boxView;
 @property (readonly, nonatomic) NSString *bodyText;
 @property (strong, nonatomic)   NSString *email;
 @property (strong, nonatomic)   NSString *appID;
