@@ -544,13 +544,12 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 
 #pragma mark - UITextView Delegate
 
-- (BOOL)textViewShouldBeginEditing:(UITextView *)textView
+- (void)textViewDidBeginEditing:(UITextView *)textView
 {
     [self verticalOffsetBy:-90 - _verticleOffset];
-    return YES;
 }
 
--(void)textViewDidEndEditing:(UITextField *)textField
+-(void)textViewDidEndEditing:(UITextView *)textView
 {
     [self verticalOffsetBy:0];
 }
@@ -567,10 +566,9 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 
 #pragma mark - UITextField Delegate
 
-- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+- (void)textFieldDidBeginEditing:(UITextField *)textField
 {
     [self verticalOffsetBy: -150 - _verticleOffset];
-    return YES;
 }
 
 -(void)textFieldDidEndEditing:(UITextField *)textField
