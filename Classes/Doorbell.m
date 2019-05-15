@@ -237,6 +237,13 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     [openTask resume];
 }
 
+- (void)submitFeedback:(NSString *)message email:(NSString *)email completion:(DoorbellCompletionBlock)completion
+{
+    self.block = completion;
+    
+    [self sendSubmit:message email:email];
+}
+
 - (void)sendSubmit:(NSString*)message email:(NSString*)email
 {
     if (self.images.count > 0) {

@@ -33,4 +33,6 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 
 - (void)addImage:(UIImage *)image WithName:(NSString *)name;
 
+- (void)submitFeedback:(NSString*)message email:(NSString*)email completion:(DoorbellCompletionBlock)completion;
+
 @end
