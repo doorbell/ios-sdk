@@ -35,4 +35,8 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 
 - (void)submitFeedback:(NSString*)message email:(NSString*)email completion:(DoorbellCompletionBlock)completion;
 
+- (void)startShakeListenerWithViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion;
+
+- (void)startShakeListener:(DoorbellCompletionBlock)completion;
+
 @end

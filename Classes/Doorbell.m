@@ -1,5 +1,7 @@
 #import "Doorbell.h"
 #import "DoorbellDialog.h"
+#import "UIWindow+Doorbell.h"
+#import <objc/runtime.h>
 
 NSString * const EndpointTemplate = @"https://doorbell.io/api/applications/%@/%@?sdk=ios&version=0.2.2&key=%@";
 NSString * const UserAgent = @"Doorbell iOS SDK";
@@ -13,6 +15,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 @property (strong, nonatomic)   NSURLSession *session;
 @property (strong, nonatomic)   NSString *imageBoundary;
 @property (strong, nonatomic)   UIImage *screenshotImage;
+@property (strong, nonatomic)   UIViewController *_vc;
 @end
 
 @implementation Doorbell
@@ -144,6 +147,61 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
     //Open - Request sent when the form is displayed to the user.
     [self sendOpen];
+}
+
+- (void)swizzle
+{
+    static BOOL methodSwizzled = NO;
+    if (!methodSwizzled) {
+        swizzleMethod([UIWindow class], @selector(motionEnded:withEvent:), @selector(DB_motionEnded:withEvent:));
+        methodSwizzled = YES;
+    }
+}
+
+void swizzleMethod(Class c, SEL orig, SEL new)
+{
+    Method origMethod = class_getInstanceMethod(c, orig);
+    Method newMethod = class_getInstanceMethod(c, new);
+    if(class_addMethod(c, orig, method_getImplementation(newMethod), method_getTypeEncoding(newMethod))) {
+        class_replaceMethod(c, new, method_getImplementation(origMethod), method_getTypeEncoding(origMethod));
+    } else {
+        method_exchangeImplementations(origMethod, newMethod);
+    }
+}
+
+- (void)startShakeListener:(DoorbellCompletionBlock)completion
+{
+    [self swizzle];
+
+    self.block = completion;
+    
+    __block Doorbell* db = self;
+
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"UIDoorbellWindowDidShake"
+                        object:nil
+                        queue:nil
+                        usingBlock:^(NSNotification *notification){
+        UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+        
+        [db showFeedbackDialogInViewController:vc completion:db.block];
+    }];
+}
+
+- (void)startShakeListenerWithViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion
+{
+    [self swizzle];
+
+    self.block = completion;
+    self._vc = vc;
+    
+    __block Doorbell* db = self;
+
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"UIDoorbellWindowDidShake"
+                        object:nil
+                        queue:nil
+                        usingBlock:^(NSNotification *notification){
+        [db showFeedbackDialogInViewController:db._vc completion:db.block];
+    }];
 }
 
 - (void)showFeedbackDialogWithCompletionBlock:(DoorbellCompletionBlock)completion
