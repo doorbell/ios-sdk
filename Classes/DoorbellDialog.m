@@ -292,6 +292,7 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 
     _bodyView = [[UITextView alloc] initWithFrame:CGRectMake(10.0f, 45.0f, 280.0f, 100)];
     _bodyView.delegate = self;
+    _bodyView.backgroundColor = [UIColor whiteColor];
     _bodyView.textColor = [UIColor darkTextColor];
     _bodyView.font = self.textFont ? self.textFont : [UIFont systemFontOfSize:16.0f];
 
