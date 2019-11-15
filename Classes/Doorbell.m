@@ -1,7 +1,6 @@
 #import "Doorbell.h"
 #import "DoorbellDialog.h"
 #import "UIWindow+Doorbell.h"
-#import <objc/runtime.h>
 
 NSString * const EndpointTemplate = @"https://doorbell.io/api/applications/%@/%@?sdk=ios&version=0.2.4&key=%@";
 NSString * const UserAgent = @"Doorbell iOS SDK";
@@ -149,30 +148,8 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     [self sendOpen];
 }
 
-- (void)swizzle
-{
-    static BOOL methodSwizzled = NO;
-    if (!methodSwizzled) {
-        swizzleMethod([UIWindow class], @selector(motionEnded:withEvent:), @selector(DB_motionEnded:withEvent:));
-        methodSwizzled = YES;
-    }
-}
-
-void swizzleMethod(Class c, SEL orig, SEL new)
-{
-    Method origMethod = class_getInstanceMethod(c, orig);
-    Method newMethod = class_getInstanceMethod(c, new);
-    if(class_addMethod(c, orig, method_getImplementation(newMethod), method_getTypeEncoding(newMethod))) {
-        class_replaceMethod(c, new, method_getImplementation(origMethod), method_getTypeEncoding(origMethod));
-    } else {
-        method_exchangeImplementations(origMethod, newMethod);
-    }
-}
-
 - (void)startShakeListener:(DoorbellCompletionBlock)completion
 {
-    [self swizzle];
-
     self.block = completion;
     
     __block Doorbell* db = self;
@@ -189,8 +166,6 @@ void swizzleMethod(Class c, SEL orig, SEL new)
 
 - (void)startShakeListenerWithViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion
 {
-    [self swizzle];
-
     self.block = completion;
     self._vc = vc;
     
