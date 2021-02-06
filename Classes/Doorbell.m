@@ -362,10 +362,16 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
                                                                else if ([data length] == 0 && error == nil)
                                                                {
                                                                    [self generalError:@"No response, please try again!"];
+
+                                                                   NSError *doorbellError = [NSError errorWithDomain:@"doorbell.io" code:3 userInfo:@{NSLocalizedDescriptionKey: @"Something went wrong, please try again"}];
+
+                                                                   self.block(doorbellError , YES);
                                                                }
                                                                else if (error != nil)
                                                                {
                                                                    [self generalError:[[NSString alloc] initWithFormat:@"Error, please try again (%@)", error.localizedDescription] ];
+
+                                                                   self.block(error, YES);
                                                                }
                                                            });
                                                        }];
@@ -451,6 +457,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
                 break;
             case 400:
                 [self fieldError:content];
+                self.block([NSError errorWithDomain:@"doorbell.io" code:3 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:content, (int)httpResp.statusCode, content]}] , YES);
                 break;
             default:
                 [self generalError:content];
