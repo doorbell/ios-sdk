@@ -130,9 +130,9 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     NSString *doorbellURLWithUTM = [NSString stringWithFormat:DoorbellSite, self.appID];
     NSURL *doorbellURL = [NSURL URLWithString:doorbellURLWithUTM];
     [[UIApplication sharedApplication] openURL:doorbellURL options:@{} completionHandler:^(BOOL success) {
-        if (success) {
-             NSLog(@"Opened url");
-        }
+//        if (success) {
+//             NSLog(@"Opened url");
+//        }
     }];
 }
 
