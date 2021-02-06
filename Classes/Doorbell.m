@@ -174,7 +174,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
                         object:nil
                         queue:nil
                         usingBlock:^(NSNotification *notification){
-        UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+        UIViewController *vc = self.keyWindow.rootViewController;
         
         [db showFeedbackDialogInViewController:vc completion:db.block];
     }];
@@ -198,7 +198,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 - (void)showFeedbackDialogWithCompletionBlock:(DoorbellCompletionBlock)completion
 {
     self.block = completion;
-    UIWindow *currentWindow = [UIApplication sharedApplication].keyWindow;
+    UIWindow *currentWindow = self.keyWindow;
     self.dialog = [[DoorbellDialog alloc] initWithFrame:currentWindow.frame];
     self.dialog.appID = self.appID;
     self.dialog.delegate = self;
