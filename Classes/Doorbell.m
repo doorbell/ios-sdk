@@ -92,7 +92,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     CGContextFillRect(ctx, screenRect);
 
     // grab reference to our window
-    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    UIWindow *window = self.keyWindow;
 
     // transfer content into our context
     [window.layer renderInContext:ctx];
@@ -101,6 +101,20 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 
     return screenshot;
 }
+
+-(UIWindow *)keyWindow
+{
+    NSArray *windows = [[UIApplication sharedApplication]windows];
+
+    for (UIWindow *window in windows) {
+        if (window.isKeyWindow) {
+            return window;
+        }
+    }
+
+    return nil;
+}
+
 
 - (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion
 {
