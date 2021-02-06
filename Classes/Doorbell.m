@@ -38,6 +38,8 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         self.properties = [[NSMutableDictionary alloc] init];
         self.images = [[NSMutableArray alloc] init];
 
+        self.tags = [[NSMutableArray alloc] init];
+
         NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
         //sessionConfig.allowsCellularAccess = NO;
         [sessionConfig setHTTPAdditionalHeaders:@{@"Content-Type": @"application/json",
@@ -301,7 +303,8 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     [submitData setValue:self.properties forKey:@"properties"];
     [submitData setValue:self.name forKey:@"name"];
     [submitData setValue:self.language forKey:@"language"];
-    
+    [submitData setValue:self.tags forKey:@"tags"];
+
     if (self.nps && self.dialog.npsValue >= 0) {
         NSNumber *npsValue = [NSNumber numberWithInt:self.dialog.npsValue];
         [submitData setValue:npsValue forKey:@"nps"];

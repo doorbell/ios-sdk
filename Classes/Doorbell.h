@@ -15,6 +15,7 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 @property (strong, nonatomic)   NSString *email;
 @property (strong, nonatomic)   NSString *name;
 @property (strong, nonatomic)   NSString *language;
+@property (strong, nonatomic)   NSMutableArray *tags;
 @property (assign, nonatomic)   BOOL screenshot;
 @property (assign, nonatomic)   BOOL nps;
 @property (assign, nonatomic)   BOOL showEmail;
