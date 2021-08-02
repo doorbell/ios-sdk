@@ -302,12 +302,9 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     _bodyView.delegate = self;
     if (@available(iOS 13.0, *)) {
         _bodyView.backgroundColor = [UIColor systemBackgroundColor];
-    } else {
-        _bodyView.backgroundColor = [UIColor whiteColor];
-    }
-    if (@available(iOS 13.0, *)) {
         //    _bodyView.textColor = [UIColor darkTextColor];
     } else {
+        _bodyView.backgroundColor = [UIColor whiteColor];
         _bodyView.textColor = [UIColor darkTextColor];
     }
     _bodyView.font = self.textFont ? self.textFont : [UIFont systemFontOfSize:16.0f];
@@ -363,8 +360,6 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     _emailField.layer.cornerRadius = 4;
     if (@available(iOS 13.0, *)) {
         _emailField.backgroundColor = [UIColor systemBackgroundColor];
-    } else {
-        _emailField.layer.borderColor = [UIColor colorWithWhite:0 alpha:0.2].CGColor;
     }
     _emailField.font = self.textFont ? self.textFont : [UIFont systemFontOfSize:14.0f];
 
