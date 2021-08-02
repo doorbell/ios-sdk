@@ -42,7 +42,11 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
         boxFrame.size = CGSizeMake(300, 255);
         boxFrame = [self calculateNewBoxFrame:boxFrame];
         _boxView = [[UIView alloc] initWithFrame:boxFrame];
-        _boxView.backgroundColor = [UIColor systemBackgroundColor];
+        if (@available(iOS 13.0, *)) {
+            _boxView.backgroundColor = [UIColor systemBackgroundColor];
+        } else {
+            _boxView.backgroundColor = [UIColor whiteColor];
+        }
         _boxView.layer.masksToBounds = NO;
         _boxView.layer.cornerRadius = 4.0f;
         //_boxView.layer.borderColor = [UIColor blackColor].CGColor;
@@ -296,8 +300,16 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
 
     _bodyView = [[UITextView alloc] initWithFrame:CGRectMake(10.0f, 45.0f, 280.0f, 100)];
     _bodyView.delegate = self;
-    _bodyView.backgroundColor = [UIColor systemBackgroundColor];
-//    _bodyView.textColor = [UIColor darkTextColor];
+    if (@available(iOS 13.0, *)) {
+        _bodyView.backgroundColor = [UIColor systemBackgroundColor];
+    } else {
+        _bodyView.backgroundColor = [UIColor whiteColor];
+    }
+    if (@available(iOS 13.0, *)) {
+        //    _bodyView.textColor = [UIColor darkTextColor];
+    } else {
+        _bodyView.textColor = [UIColor darkTextColor];
+    }
     _bodyView.font = self.textFont ? self.textFont : [UIFont systemFontOfSize:16.0f];
 
     _bodyView.dataDetectorTypes = UIDataDetectorTypeNone;
@@ -349,7 +361,11 @@ NSString * const DoorbellSite = @"https://doorbell.io/?utm_source=feedback_form&
     _emailField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     _emailField.autocorrectionType = UITextAutocorrectionTypeNo;
     _emailField.layer.cornerRadius = 4;
-    _emailField.backgroundColor = [UIColor systemBackgroundColor];
+    if (@available(iOS 13.0, *)) {
+        _emailField.backgroundColor = [UIColor systemBackgroundColor];
+    } else {
+        _emailField.layer.borderColor = [UIColor colorWithWhite:0 alpha:0.2].CGColor;
+    }
     _emailField.font = self.textFont ? self.textFont : [UIFont systemFontOfSize:14.0f];
 
     UIBarButtonItem *emailDoneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil) style:UIBarButtonItemStyleDone target:_emailField action:@selector(resignFirstResponder)];
