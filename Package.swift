@@ -9,7 +9,8 @@ let package = Package(
     products: [
         .library(
             name: "Doorbell",
-            targets: ["Doorbell"]),
+            targets: ["Doorbell"]
+        ),
     ],
     dependencies: [
         // no dependencies
@@ -18,6 +19,8 @@ let package = Package(
         .target(
             name: "Doorbell",
             dependencies: [],
-            path: "Classes"),
+            path: "Classes",
+            publicHeadersPath: "."
+        ),
     ]
 )
