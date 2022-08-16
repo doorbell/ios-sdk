@@ -1,5 +1,7 @@
 #import <UIKit/UIKit.h>
 #import <sys/utsname.h>
+#import "DoorbellDialog.h"
+#import "UIWindow+Doorbell.h"
 
 typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 
