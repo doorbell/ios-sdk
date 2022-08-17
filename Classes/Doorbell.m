@@ -2,7 +2,7 @@
 #import "DoorbellDialog.h"
 #import "UIWindow+Doorbell.h"
 
-NSString * const EndpointTemplate = @"https://doorbell.io/api/applications/%@/%@?sdk=ios&version=0.4.0&key=%@";
+NSString * const EndpointTemplate = @"https://doorbell.io/api/applications/%@/%@?sdk=ios&version=0.4.1&key=%@";
 NSString * const UserAgent = @"Doorbell iOS SDK";
 
 @interface Doorbell () <DoorbellDialogDelegate>

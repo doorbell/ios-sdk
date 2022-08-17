@@ -150,11 +150,11 @@
 			};
 			buildConfigurationList = 45327E3B1ACADE9B002B7A06 /* Build configuration list for PBXProject "DoorbelliOS" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
+				Base,
 			);
 			mainGroup = 45327E371ACADE9B002B7A06;
 			productRefGroup = 45327E421ACADE9B002B7A06 /* Products */;

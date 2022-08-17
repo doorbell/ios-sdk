@@ -1,11 +1,3 @@
-//
-//  DoorbelliOS.h
-//  DoorbelliOS
-//
-//  Created by Dave Hardiman on 31/03/2015.
-//  Copyright (c) 2015 Doorbell. All rights reserved.
-//
-
 #import <UIKit/UIKit.h>
 
 //! Project version number for DoorbelliOS.
