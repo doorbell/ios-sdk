@@ -115,6 +115,46 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     return nil;
 }
 
+- (void)trackInViewController:(UIViewController *)vc userID:(NSString *)userID eventName:(NSString *)eventName attributes:(NSMutableDictionary *) attributes
+{
+    if (![self checkCredentials]) {
+        return;
+    }
+    
+    NSMutableDictionary *submitData = [[NSMutableDictionary alloc] init];
+    [submitData setValue:userID forKey:@"external_user_id"];
+    [submitData setValue:eventName forKey:@"name"];
+    if (attributes != nil) {
+        [submitData setValue:attributes forKey:@"attributes"];
+    }
+
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:submitData
+                                                       options:(NSJSONWritingOptions)0
+                                                         error:&error];
+    
+    if (! jsonData) {
+        NSLog(@"JSON Encoding error: %@", error.localizedDescription);
+        return;
+    }
+
+    NSMutableURLRequest *trackRequest = [self createRequestWithType:@"event"];
+    
+    NSURLSessionUploadTask *trackTask = [_session uploadTaskWithRequest:trackRequest
+                                                                fromData:jsonData
+                                                       completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                                                           dispatch_async(dispatch_get_main_queue(), ^{
+                                                               NSString *content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                                                               NSLog(@"Event Track Response data: %@", content);
+
+                                                               if ([data length] > 0 && error == nil)
+                                                               {
+                                                                   [self manageTrackResponse:response content:data vc:vc];
+                                                               }
+                                                           });
+                                                       }];
+    [trackTask resume];
+}
 
 - (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion
 {
@@ -355,6 +395,7 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     if ([type isEqualToString:@"submit"] ||
         [type isEqualToString:@"open"] ||
+        [type isEqualToString:@"event"] ||
         [type isEqualToString:@"upload"]) {
         request.HTTPMethod = @"POST";
     }
@@ -458,6 +499,24 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
         NSData *imgData = UIImageJPEGRepresentation(image, 0.5);
         NSDictionary *img = @{@"data": imgData, @"name": name};
         [self.images addObject:img];
+    }
+}
+
+- (void)manageTrackResponse:(NSURLResponse*)response content:(NSData*)content vc:(UIViewController *)vc
+{
+    NSError *error = nil;
+
+    NSDictionary *trackResponse = [NSJSONSerialization JSONObjectWithData:content
+                                                             options:NSJSONReadingAllowFragments
+                                                               error:&error];
+
+    NSString *action = [trackResponse objectForKey:@"action"];
+    if ([action isKindOfClass:[NSNull class]]) {
+//        NSLog(@"Empty action");
+    } else {
+        if ([action isEqualToString:@"show"]) {
+            [self showFeedbackDialogInViewController:vc completion:nil];
+        }
     }
 }
 

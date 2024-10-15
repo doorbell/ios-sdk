@@ -32,6 +32,8 @@ typedef void (^DoorbellCompletionBlock)(NSError *error, BOOL isCancelled);
 
 - (void)showFeedbackDialogInViewController:(UIViewController *)vc completion:(DoorbellCompletionBlock)completion;
 
+- (void)trackInViewController:(UIViewController *)vc userID:(NSString *)userID eventName:(NSString *)eventName attributes:(NSMutableDictionary *) attributes;
+
 - (void)addPropertyWithName:(NSString*)name AndValue:(id)value;
 
 - (void)addImage:(UIImage *)image WithName:(NSString *)name;
