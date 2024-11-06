@@ -2,7 +2,7 @@
 #import "DoorbellDialog.h"
 #import "UIWindow+Doorbell.h"
 
-NSString * const EndpointTemplate = @"https://doorbell.io/api/applications/%@/%@?sdk=ios&version=0.4.2&key=%@";
+NSString * const EndpointTemplate = @"https://doorbell.io/api/applications/%@/%@?sdk=ios&version=0.4.3&key=%@";
 NSString * const UserAgent = @"Doorbell iOS SDK";
 
 @interface Doorbell () <DoorbellDialogDelegate>
@@ -358,6 +358,10 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
     [submitData setValue:self.name forKey:@"name"];
     [submitData setValue:self.language forKey:@"language"];
     [submitData setValue:self.tags forKey:@"tags"];
+    
+    if (self.eventID != nil) {
+        [submitData setValue:self.eventID forKey:@"event_id"];
+    }
 
     if (self.nps && self.dialog.npsValue >= 0) {
         NSNumber *npsValue = [NSNumber numberWithInt:self.dialog.npsValue];
@@ -515,7 +519,10 @@ NSString * const UserAgent = @"Doorbell iOS SDK";
 //        NSLog(@"Empty action");
     } else {
         if ([action isEqualToString:@"show"]) {
-            [self showFeedbackDialogInViewController:vc completion:nil];
+            self.eventID = [trackResponse objectForKey:@"event_id"];
+            [self showFeedbackDialogInViewController:vc completion:^(NSError *error, BOOL isCancelled) {
+                // Empty is fine!
+            }];
         }
     }
 }
